@@ -1,4 +1,5 @@
 // src/components/Navbar.tsx
+import React from "react";
 import {
   Drawer,
   List,
@@ -6,6 +7,8 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
+  Box,
+  Divider,
 } from "@mui/material";
 import {useDispatch, useSelector} from "react-redux";
 import {logout} from "../store/userSlice";
@@ -15,13 +18,14 @@ import HomeIcon from "@mui/icons-material/Home";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import {useSnackbar} from "notistack";
 
 const Navbar: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const {enqueueSnackbar} = useSnackbar();
-  const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
+  const isLoggedIn = useSelector((state: RootState) => state.user?.isLoggedIn);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -45,16 +49,26 @@ const Navbar: React.FC = () => {
         "& .MuiDrawer-paper": {
           width: 240,
           boxSizing: "border-box",
-          backgroundColor: "#2563eb", // bg-blue-600
+          backgroundColor: "#2563eb",
+          color: "white",
+          display: "flex",
+          flexDirection: "column",
         },
       }}
     >
-      <List>
-        <ListItem>
-          <Typography variant="h6" component="div" sx={{color: "white"}}>
-            MindVault
-          </Typography>
-        </ListItem>
+      <Box sx={{p: 2, flexShrink: 0}}>
+        <Typography
+          variant="h5"
+          component="div"
+          sx={{fontWeight: "bold", mb: 2}}
+        >
+          MindVault
+        </Typography>
+      </Box>
+      <Divider
+        sx={{backgroundColor: "rgba(255, 255, 255, 0.12)", flexShrink: 0}}
+      />
+      <List sx={{flexGrow: 1, overflow: "auto"}}>
         <ListItem
           component={Link}
           to="/"
@@ -64,6 +78,8 @@ const Navbar: React.FC = () => {
             "&:hover": {
               backgroundColor: "rgba(255, 255, 255, 0.1)",
             },
+            borderRadius: "8px",
+            m: 1,
           }}
         >
           <ListItemIcon>
@@ -82,6 +98,8 @@ const Navbar: React.FC = () => {
                 "&:hover": {
                   backgroundColor: "rgba(255, 255, 255, 0.1)",
                 },
+                borderRadius: "8px",
+                m: 1,
               }}
             >
               <ListItemIcon>
@@ -97,6 +115,8 @@ const Navbar: React.FC = () => {
                 "&:hover": {
                   backgroundColor: "rgba(255, 255, 255, 0.1)",
                 },
+                borderRadius: "8px",
+                m: 1,
               }}
             >
               <ListItemIcon>
@@ -106,22 +126,44 @@ const Navbar: React.FC = () => {
             </ListItem>
           </>
         ) : (
-          <ListItem
-            component={Link}
-            to="/login"
-            sx={{
-              color: "white",
-              cursor: "pointer",
-              "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-              },
-            }}
-          >
-            <ListItemIcon>
-              <LoginIcon sx={{color: "white"}} />
-            </ListItemIcon>
-            <ListItemText primary="Login" />
-          </ListItem>
+          <>
+            <ListItem
+              component={Link}
+              to="/login"
+              sx={{
+                color: "white",
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                },
+                borderRadius: "8px",
+                m: 1,
+              }}
+            >
+              <ListItemIcon>
+                <LoginIcon sx={{color: "white"}} />
+              </ListItemIcon>
+              <ListItemText primary="Login" />
+            </ListItem>
+            <ListItem
+              component={Link}
+              to="/signup"
+              sx={{
+                color: "white",
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                },
+                borderRadius: "8px",
+                m: 1,
+              }}
+            >
+              <ListItemIcon>
+                <PersonAddIcon sx={{color: "white"}} />
+              </ListItemIcon>
+              <ListItemText primary="Sign Up" />
+            </ListItem>
+          </>
         )}
       </List>
     </Drawer>

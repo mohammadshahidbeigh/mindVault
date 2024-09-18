@@ -5,7 +5,7 @@ import {Provider} from "react-redux";
 import {store, persistor} from "./store/index.ts";
 import {PersistGate} from "redux-persist/integration/react";
 import {SnackbarProvider} from "notistack";
-
+import "./index.css";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
