@@ -107,23 +107,6 @@ const Navbar: React.FC = () => {
               </ListItemIcon>
               <ListItemText primary="Dashboard" />
             </ListItem>
-            <ListItem
-              onClick={handleLogout}
-              sx={{
-                color: "white",
-                cursor: "pointer",
-                "&:hover": {
-                  backgroundColor: "rgba(255, 255, 255, 0.1)",
-                },
-                borderRadius: "8px",
-                m: 1,
-              }}
-            >
-              <ListItemIcon>
-                <LogoutIcon sx={{color: "white"}} />
-              </ListItemIcon>
-              <ListItemText primary="Logout" />
-            </ListItem>
           </>
         ) : (
           <>
@@ -166,6 +149,27 @@ const Navbar: React.FC = () => {
           </>
         )}
       </List>
+      {isLoggedIn && (
+        <List>
+          <ListItem
+            onClick={handleLogout}
+            sx={{
+              color: "white",
+              cursor: "pointer",
+              "&:hover": {
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+              },
+              borderRadius: "8px",
+              m: 1,
+            }}
+          >
+            <ListItemIcon>
+              <LogoutIcon sx={{color: "white"}} />
+            </ListItemIcon>
+            <ListItemText primary="Logout" />
+          </ListItem>
+        </List>
+      )}
     </Drawer>
   );
 };

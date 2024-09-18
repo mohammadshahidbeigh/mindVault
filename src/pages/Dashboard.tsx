@@ -1,5 +1,5 @@
 // src/pages/Dashboard.tsx
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {
   Container,
   Typography,
@@ -9,6 +9,16 @@ import {
   Box,
   Paper,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -18,12 +28,43 @@ import {
 } from "@mui/icons-material";
 import * as THREE from "three";
 
+interface Item {
+  title: string;
+  description: string;
+  type: "Articles" | "Research Papers" | "Books";
+}
+
 const Dashboard: React.FC = () => {
-  const categories = [
+  const [categories, setCategories] = useState([
     {title: "Articles", icon: <ArticleIcon />, count: 12},
     {title: "Research Papers", icon: <ScienceIcon />, count: 5},
     {title: "Books", icon: <BookIcon />, count: 8},
-  ];
+  ]);
+
+  const [items, setItems] = useState<Item[]>([
+    {
+      title: "Sample Item 1",
+      description: "This is a brief description of the item.",
+      type: "Articles",
+    },
+    {
+      title: "Sample Item 2",
+      description: "This is a brief description of the item.",
+      type: "Research Papers",
+    },
+    {
+      title: "Sample Item 3",
+      description: "This is a brief description of the item.",
+      type: "Books",
+    },
+  ]);
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const [newItem, setNewItem] = useState<Item>({
+    title: "",
+    description: "",
+    type: "Articles",
+  });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -127,6 +168,29 @@ const Dashboard: React.FC = () => {
     }
   }, []);
 
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setNewItem({title: "", description: "", type: "Articles"});
+  };
+
+  const handleAddItem = () => {
+    if (newItem.title && newItem.description) {
+      setItems([...items, newItem]);
+      setCategories(
+        categories.map((category) =>
+          category.title === newItem.type
+            ? {...category, count: category.count + 1}
+            : category
+        )
+      );
+      handleCloseDialog();
+    }
+  };
+
   return (
     <Container
       maxWidth="lg"
@@ -152,7 +216,12 @@ const Dashboard: React.FC = () => {
         <Typography variant="h4" fontWeight="bold">
           Dashboard
         </Typography>
-        <IconButton color="primary" aria-label="add new item" size="large">
+        <IconButton
+          color="primary"
+          aria-label="add new item"
+          size="large"
+          onClick={handleOpenDialog}
+        >
           <AddIcon />
         </IconButton>
       </Box>
@@ -189,25 +258,74 @@ const Dashboard: React.FC = () => {
         Recent Items
       </Typography>
       <Grid container spacing={3}>
-        {[1, 2, 3].map((item) => (
-          <Grid item xs={12} sm={6} md={4} key={item}>
+        {items.slice(-3).map((item, index) => (
+          <Grid item xs={12} sm={6} md={4} key={index}>
             <Card
               elevation={2}
               sx={{backgroundColor: "rgba(255, 255, 255, 0.8)"}}
             >
               <CardContent>
                 <Typography variant="h6" gutterBottom>
-                  Sample Item {item}
+                  {item.title}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  This is a brief description of the item. It could be an
-                  article, research paper, or book summary.
+                  {item.description}
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
+
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Add New Item</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Title"
+            type="text"
+            fullWidth
+            value={newItem.title}
+            onChange={(e) => setNewItem({...newItem, title: e.target.value})}
+          />
+          <TextField
+            margin="dense"
+            label="Description"
+            type="text"
+            fullWidth
+            multiline
+            rows={4}
+            value={newItem.description}
+            onChange={(e) =>
+              setNewItem({...newItem, description: e.target.value})
+            }
+          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Type</InputLabel>
+            <Select
+              value={newItem.type}
+              onChange={(e) =>
+                setNewItem({
+                  ...newItem,
+                  type: e.target.value as
+                    | "Articles"
+                    | "Research Papers"
+                    | "Books",
+                })
+              }
+            >
+              <MenuItem value="Articles">Articles</MenuItem>
+              <MenuItem value="Research Papers">Research Papers</MenuItem>
+              <MenuItem value="Books">Books</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button onClick={handleAddItem}>Add</Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };
