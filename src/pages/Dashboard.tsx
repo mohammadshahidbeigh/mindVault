@@ -73,7 +73,7 @@ const Dashboard: React.FC = () => {
         ))}
       </Grid>
 
-      <Typography variant="h5" sx={{mt: 6, mb: 3}}>
+      <Typography variant="h5" sx={{mt: 8, mb: 3}}>
         Recent Items
       </Typography>
       <Grid container spacing={3}>
