@@ -19,6 +19,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import PersonIcon from "@mui/icons-material/Person";
 import {useSnackbar} from "notistack";
 
 const Navbar: React.FC = () => {
@@ -89,6 +90,24 @@ const Navbar: React.FC = () => {
         </ListItem>
         {isLoggedIn ? (
           <>
+            <ListItem
+              component={Link}
+              to="/profile"
+              sx={{
+                color: "white",
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                },
+                borderRadius: "8px",
+                m: 1,
+              }}
+            >
+              <ListItemIcon>
+                <PersonIcon sx={{color: "white"}} />
+              </ListItemIcon>
+              <ListItemText primary="Profile" />
+            </ListItem>
             <ListItem
               component={Link}
               to="/dashboard"
