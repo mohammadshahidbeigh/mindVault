@@ -67,7 +67,7 @@ const Navbar: React.FC = () => {
         </Typography>
       </Box>
       <Divider
-        sx={{backgroundColor: "rgba(255, 255, 255, 0.12)", flexShrink: 0}}
+        sx={{backgroundColor: "rgba(255, 255, 255, 0.2)", flexShrink: 0}}
       />
       <List sx={{flexGrow: 1, overflow: "auto"}}>
         <ListItem
