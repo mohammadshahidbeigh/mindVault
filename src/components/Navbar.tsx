@@ -57,12 +57,13 @@ const Navbar: React.FC = () => {
         },
       }}
     >
-      <Box sx={{p: 2, flexShrink: 0}}>
-        <Typography
-          variant="h5"
-          component="div"
-          sx={{fontWeight: "bold", mb: 2}}
-        >
+      <Box sx={{p: 2, flexShrink: 0, display: "flex", alignItems: "center"}}>
+        <img
+          src="https://www.cdnlogo.com/logos/m/35/midem.svg"
+          alt="MindVault Logo"
+          style={{width: "40px", height: "40px", marginRight: "10px"}}
+        />
+        <Typography variant="h5" component="div" sx={{fontWeight: "bold"}}>
           MindVault
         </Typography>
       </Box>
