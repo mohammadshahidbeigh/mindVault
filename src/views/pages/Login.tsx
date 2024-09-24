@@ -1,4 +1,4 @@
-// src/pages/Signup.tsx
+// src/pages/Login.tsx
 import React from "react";
 import {
   Container,
@@ -10,39 +10,29 @@ import {
   Avatar,
 } from "@mui/material";
 import {useDispatch} from "react-redux";
-import {login} from "../store/userSlice";
+import {login} from "../../store/userSlice";
 import {useNavigate, Link} from "react-router-dom";
 import {useSnackbar} from "notistack";
 import {Formik, Form, Field} from "formik";
 import * as Yup from "yup";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
-const SignupSchema = Yup.object().shape({
-  name: Yup.string().required("Required"),
+const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Required"),
-  password: Yup.string()
-    .min(8, "Password must be at least 8 characters")
-    .required("Required"),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref("password")], "Passwords must match")
-    .required("Required"),
+  password: Yup.string().required("Required"),
 });
 
-const Signup: React.FC = () => {
+const Login: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const {enqueueSnackbar} = useSnackbar();
 
-  const handleSignup = (values: {
-    name: string;
-    email: string;
-    password: string;
-  }) => {
-    // Simulating a successful signup
-    dispatch(login({email: values.email, name: values.name}));
+  const handleLogin = (values: {email: string; password: string}) => {
+    // Simulating a successful login
+    dispatch(login({email: values.email, name: "John Doe"}));
 
     // Show success notification at lower right side
-    enqueueSnackbar("Signup successful", {
+    enqueueSnackbar("Login successful", {
       variant: "success",
       anchorOrigin: {
         vertical: "bottom",
@@ -50,7 +40,7 @@ const Signup: React.FC = () => {
       },
     });
 
-    // Navigate to dashboard after signup
+    // Navigate to dashboard after login
     navigate("/dashboard");
   };
 
@@ -68,8 +58,8 @@ const Signup: React.FC = () => {
       <Paper
         elevation={6}
         sx={{
-          mt: 4,
-          p: 2,
+          mt: 8,
+          p: 4,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -78,35 +68,20 @@ const Signup: React.FC = () => {
         <Avatar sx={{m: 1, bgcolor: "secondary.main"}}>
           <LockOutlinedIcon />
         </Avatar>
-        <Typography component="h1" variant="h6" gutterBottom>
-          Sign up
+        <Typography component="h1" variant="h5" gutterBottom>
+          Log in
         </Typography>
         <Formik
-          initialValues={{
-            name: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
-          }}
-          validationSchema={SignupSchema}
-          onSubmit={handleSignup}
+          initialValues={{email: "", password: ""}}
+          validationSchema={LoginSchema}
+          onSubmit={handleLogin}
         >
           {({errors, touched}) => (
             <Form style={{width: "100%"}}>
               <Field
                 as={TextField}
                 fullWidth
-                margin="dense"
-                name="name"
-                label="Full Name"
-                variant="outlined"
-                error={touched.name && errors.name}
-                helperText={touched.name && errors.name}
-              />
-              <Field
-                as={TextField}
-                fullWidth
-                margin="dense"
+                margin="normal"
                 name="email"
                 label="Email Address"
                 variant="outlined"
@@ -116,7 +91,7 @@ const Signup: React.FC = () => {
               <Field
                 as={TextField}
                 fullWidth
-                margin="dense"
+                margin="normal"
                 name="password"
                 label="Password"
                 type="password"
@@ -124,34 +99,31 @@ const Signup: React.FC = () => {
                 error={touched.password && errors.password}
                 helperText={touched.password && errors.password}
               />
-              <Field
-                as={TextField}
-                fullWidth
-                margin="dense"
-                name="confirmPassword"
-                label="Confirm Password"
-                type="password"
-                variant="outlined"
-                error={touched.confirmPassword && errors.confirmPassword}
-                helperText={touched.confirmPassword && errors.confirmPassword}
-              />
               <Button
                 variant="contained"
                 color="primary"
                 type="submit"
                 fullWidth
-                sx={{mt: 2, mb: 1}}
+                sx={{mt: 3, mb: 2}}
               >
-                Sign Up
+                Login
               </Button>
-              <Box sx={{mt: 1, textAlign: "center"}}>
+              <Box sx={{mt: 2, textAlign: "center"}}>
+                <Link
+                  to="/forgot-password"
+                  style={{textDecoration: "none", color: "primary.main"}}
+                >
+                  Forgot password?
+                </Link>
+              </Box>
+              <Box sx={{mt: 2, textAlign: "center"}}>
                 <Typography variant="body2">
-                  Already have an account?{" "}
+                  Don't have an account?{" "}
                   <Link
-                    to="/login"
+                    to="/signup"
                     style={{textDecoration: "none", color: "primary.main"}}
                   >
-                    Log In
+                    Sign Up
                   </Link>
                 </Typography>
               </Box>
@@ -163,4 +135,4 @@ const Signup: React.FC = () => {
   );
 };
 
-export default Signup;
+export default Login;

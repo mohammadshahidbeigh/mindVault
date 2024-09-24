@@ -1,16 +1,16 @@
 // src/App.tsx
 import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Dashboard from "./pages/Dashboard";
-import Profile from "./components/Profile";
-import PrivateRoute from "./components/PrivateRoute";
-import ArticlePage from "./pages/ArticlePage";
-import ResearchPaperPage from "./pages/ResearchPaperPage";
-import BookPage from "./pages/BookPage";
-import DetailPage from "./pages/DetailPage";
+import Navbar from "./views/components/Navbar";
+import Home from "./views/pages/Home";
+import Login from "./views/pages/Login";
+import Signup from "./views/pages/Signup";
+import Dashboard from "./views/pages/Dashboard";
+import Profile from "./views/components/Profile";
+import PrivateRoute from "./views/components/PrivateRoute";
+import ArticlePage from "./views/pages/ArticlePage";
+import ResearchPaperPage from "./views/pages/ResearchPaperPage";
+import BookPage from "./views/pages/BookPage";
+import DetailPage from "./views/pages/DetailPage";
 
 const App: React.FC = () => {
   return (

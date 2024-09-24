@@ -11,9 +11,9 @@ import {
   Divider,
 } from "@mui/material";
 import {useDispatch, useSelector} from "react-redux";
-import {logout} from "../store/userSlice";
+import {logout} from "../../store/userSlice";
 import {useNavigate, Link} from "react-router-dom";
-import {RootState} from "../store";
+import {RootState} from "../../store";
 import HomeIcon from "@mui/icons-material/Home";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import LoginIcon from "@mui/icons-material/Login";
@@ -61,7 +61,11 @@ const Navbar: React.FC = () => {
         <img
           src="https://www.cdnlogo.com/logos/m/35/midem.svg"
           alt="MindVault Logo"
-          style={{width: "40px", height: "40px", marginRight: "10px"}}
+          style={{
+            width: "40px",
+            height: "40px",
+            marginRight: "10px",
+          }}
         />
         <Typography variant="h5" component="div" sx={{fontWeight: "bold"}}>
           MindVault

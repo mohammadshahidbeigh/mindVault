@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {useSelector, useDispatch} from "react-redux";
-import {RootState} from "../store";
-import {login} from "../store/userSlice";
+import {RootState} from "../../store";
+import {login} from "../../store/userSlice";
 import {
   Box,
   Container,
