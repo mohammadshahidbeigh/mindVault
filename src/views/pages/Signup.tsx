@@ -61,8 +61,6 @@ const Signup: React.FC = () => {
       sx={{
         width: "60%",
         maxWidth: "280px",
-        marginLeft: "auto",
-        marginRight: "20%",
       }}
     >
       <Paper
