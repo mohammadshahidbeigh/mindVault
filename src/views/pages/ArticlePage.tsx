@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {
   Container,
   Typography,
@@ -8,17 +8,27 @@ import {
   Box,
 } from "@mui/material";
 import {useNavigate} from "react-router-dom";
+import {getAllArticles} from "../../controllers/ArticleController";
+import {Article} from "../../models/ArticleModel";
 
 const ArticlePage: React.FC = () => {
   const navigate = useNavigate();
+  const [articles, setArticles] = useState<Article[]>([]);
 
-  // Sample data, replace with actual data from API or state
-  const articles = [
-    {id: 1, title: "Article 1", description: "Description of Article 1"},
-    {id: 2, title: "Article 2", description: "Description of Article 2"},
-  ];
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const fetchedArticles = await getAllArticles();
+        setArticles(fetchedArticles);
+      } catch (error) {
+        console.error("Error fetching articles:", error);
+      }
+    };
 
-  const handleArticleClick = (id: number) => {
+    fetchArticles();
+  }, []);
+
+  const handleArticleClick = (id: string) => {
     navigate(`/detail/${id}?type=article`);
   };
 
@@ -29,7 +39,7 @@ const ArticlePage: React.FC = () => {
           Articles
         </Typography>
         <Grid container spacing={3}>
-          {articles.map((article) => (
+          {articles.map((article: Article) => (
             <Grid item xs={12} sm={6} md={4} key={article.id}>
               <Card
                 elevation={3}
@@ -41,7 +51,7 @@ const ArticlePage: React.FC = () => {
                     {article.title}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {article.description}
+                    {article.content}
                   </Typography>
                 </CardContent>
               </Card>
