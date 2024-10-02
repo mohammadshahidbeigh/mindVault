@@ -2,8 +2,12 @@
 import express, {Application} from "express";
 import {ApolloServer} from "apollo-server-express";
 import {typeDefs, resolvers} from "./graphql/schema";
+import connectDB from "./db"; // Import the MongoDB connection
 
 const app: Application = express();
+
+// Connect to MongoDB
+connectDB();
 
 // Create Apollo server
 const server = new ApolloServer({typeDefs, resolvers});
