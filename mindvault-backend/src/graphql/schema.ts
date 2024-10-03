@@ -135,22 +135,23 @@ export const resolvers: IResolvers = {
         throw new Error("Failed to fetch categories");
       }
     },
-    items: async (_: unknown, {type, searchTerm}): Promise<IItem[]> => {
+    // ... existing code ...
+    items: async (
+      _: unknown,
+      {search}: {search?: string}
+    ): Promise<IItem[]> => {
       try {
-        const items = await Item.find({
-          $or: [
-            {title: {$regex: searchTerm, $options: "i"}},
-            {description: {$regex: searchTerm, $options: "i"}},
-            {tags: {$regex: searchTerm, $options: "i"}},
-          ],
-          type: type,
-        });
+        const query = search
+          ? {title: {$regex: String(search), $options: "i"}}
+          : {};
+        const items = await Item.find(query);
         return items;
       } catch (err) {
         console.error("Error fetching items", err);
         throw new Error("Failed to fetch items");
       }
     },
+    // ... existing code ...
     item: async (_: unknown, {id}): Promise<IItem | null> => {
       try {
         const item = await Item.findById(id);
