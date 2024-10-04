@@ -17,46 +17,54 @@ import ItemCard from "../components/ItemCard";
 import ItemDialog from "../components/ItemDialog";
 import useStarfield from "../../hooks/useStarfield";
 import {validateInputs, Item} from "../../utils/validateInputs";
+import {useQuery, useMutation} from "@apollo/client";
+import {
+  GET_ITEMS,
+  ADD_ITEM,
+  UPDATE_ITEM,
+  DELETE_ITEM,
+} from "../../graphql/queries";
 
 const Dashboard: React.FC = () => {
   const canvasRef = useStarfield();
 
+  // Fetch items from GraphQL API
+  const {loading, error, data} = useQuery(GET_ITEMS);
+  const [addItem] = useMutation(ADD_ITEM);
+  const [updateItem] = useMutation(UPDATE_ITEM);
+  const [deleteItem] = useMutation(DELETE_ITEM);
+
   // Categories state with proper typing
   const [categories, setCategories] = useState([
-    {title: "Articles", icon: <AddIcon />, count: 12, path: "/articles"},
+    {title: "Articles", icon: <AddIcon />, count: 0, path: "/articles"},
     {
       title: "Research Papers",
       icon: <AddIcon />,
-      count: 5,
+      count: 0,
       path: "/research-papers",
     },
-    {title: "Books", icon: <AddIcon />, count: 8, path: "/books"},
+    {title: "Books", icon: <AddIcon />, count: 0, path: "/books"},
   ]);
 
   // Items state with type `Item[]`
-  const [items, setItems] = useState<Item[]>([
-    {
-      id: "1",
-      title: "Sample Item 1",
-      description: "This is a brief description of the item.",
-      type: "Articles",
-      tags: ["sample", "article"],
-    },
-    {
-      id: "2",
-      title: "Sample Item 2",
-      description: "This is a brief description of the item.",
-      type: "Research Papers",
-      tags: ["sample", "research"],
-    },
-    {
-      id: "3",
-      title: "Sample Item 3",
-      description: "This is a brief description of the item.",
-      type: "Books",
-      tags: ["sample", "book"],
-    },
-  ]);
+  const [items, setItems] = useState<Item[]>([]);
+  const [filteredItems, setFilteredItems] = useState<Item[]>(items);
+
+  useEffect(() => {
+    if (data) {
+      setItems(data.items);
+      setFilteredItems(data.items);
+
+      // Update category counts based on fetched items
+      const updatedCategories = categories.map((category) => {
+        const count = data.items.filter(
+          (item: Item) => item.type === category.title
+        ).length;
+        return {...category, count};
+      });
+      setCategories(updatedCategories);
+    }
+  }, [data, categories]);
 
   // Dialog state for editing and adding items
   const [openDialog, setOpenDialog] = useState(false);
@@ -72,7 +80,6 @@ const Dashboard: React.FC = () => {
 
   // Other states
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredItems, setFilteredItems] = useState<Item[]>(items);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
@@ -123,29 +130,63 @@ const Dashboard: React.FC = () => {
   };
 
   // Add or update an item
-  const handleAddOrUpdateItem = () => {
+  const handleAddOrUpdateItem = async () => {
     const {isValid, errors} = validateInputs(newItem);
     setErrors(errors);
 
     if (isValid) {
       if (editingItem) {
         // Update existing item
-        setItems(
-          items.map((item) => (item.id === editingItem.id ? newItem : item))
-        );
-        setSnackbarMessage("Item updated successfully!");
+        try {
+          const response = await updateItem({
+            variables: {
+              id: editingItem.id,
+              title: newItem.title,
+              description: newItem.description,
+              type: newItem.type,
+              tags: newItem.tags,
+            },
+            refetchQueries: [{query: GET_ITEMS}],
+          });
+
+          const updatedItem = response.data.updateItem;
+          setItems(
+            items.map((item) =>
+              item.id === editingItem.id ? updatedItem : item
+            )
+          );
+          setSnackbarMessage("Item updated successfully!");
+        } catch (error) {
+          console.error("Error updating item:", error);
+          setSnackbarMessage("Failed to update item.");
+        }
       } else {
         // Add new item
-        const newItemWithId = {...newItem, id: Date.now().toString()};
-        setItems([...items, newItemWithId]);
-        setCategories(
-          categories.map((category) =>
-            category.title === newItem.type
-              ? {...category, count: category.count + 1}
-              : category
-          )
-        );
-        setSnackbarMessage("New item added successfully!");
+        try {
+          const response = await addItem({
+            variables: {
+              title: newItem.title,
+              description: newItem.description,
+              type: newItem.type,
+              tags: newItem.tags,
+            },
+            refetchQueries: [{query: GET_ITEMS}],
+          });
+
+          const newItemWithId = response.data.addItem;
+          setItems([...items, newItemWithId]);
+          setCategories(
+            categories.map((category) =>
+              category.title === newItem.type
+                ? {...category, count: category.count + 1}
+                : category
+            )
+          );
+          setSnackbarMessage("New item added successfully!");
+        } catch (error) {
+          console.error("Error adding item:", error);
+          setSnackbarMessage("Failed to add item.");
+        }
       }
       setSnackbarOpen(true);
       handleCloseDialog();
@@ -153,18 +194,31 @@ const Dashboard: React.FC = () => {
   };
 
   // Delete an item
-  const handleDeleteItem = (item: Item) => {
-    setItems(items.filter((i) => i.id !== item.id));
-    setCategories(
-      categories.map((category) =>
-        category.title === item.type
-          ? {...category, count: category.count - 1}
-          : category
-      )
-    );
-    setSnackbarMessage("Item deleted successfully!");
+  const handleDeleteItem = async (item: Item) => {
+    try {
+      await deleteItem({
+        variables: {id: item.id},
+        refetchQueries: [{query: GET_ITEMS}],
+      });
+
+      setItems(items.filter((i) => i.id !== item.id));
+      setCategories(
+        categories.map((category) =>
+          category.title === item.type
+            ? {...category, count: category.count - 1}
+            : category
+        )
+      );
+      setSnackbarMessage("Item deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      setSnackbarMessage("Failed to delete item.");
+    }
     setSnackbarOpen(true);
   };
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
 
   return (
     <Container
