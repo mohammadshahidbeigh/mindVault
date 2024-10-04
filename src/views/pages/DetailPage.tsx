@@ -1,85 +1,40 @@
-import React, {useState, useEffect} from "react";
-import {useParams} from "react-router-dom";
-import {
-  Container,
-  Typography,
-  Paper,
-  Box,
-  Chip,
-  CircularProgress,
-} from "@mui/material";
-
-interface Item {
-  id: string;
-  title: string;
-  description: string;
-  type: "Article" | "Research Paper" | "Book";
-  tags: string[];
-  // Add more fields as needed
-}
+import React from "react";
+import {useParams, useLocation} from "react-router-dom";
+import {useQuery} from "@apollo/client";
+import {GET_ITEM_BY_ID} from "../../graphql/queries";
+import {Container, Typography, Box} from "@mui/material";
 
 const DetailPage: React.FC = () => {
   const {id} = useParams<{id: string}>();
-  const [item, setItem] = useState<Item | null>(null);
-  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const type = new URLSearchParams(location.search).get("type");
 
-  useEffect(() => {
-    const fetchItem = async () => {
-      try {
-        // Replace this with actual API call
-        const response = await fetch(`/api/items/${id}`);
-        const data = await response.json();
-        setItem(data);
-      } catch (error) {
-        console.error("Error fetching item:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const {data, loading, error} = useQuery(GET_ITEM_BY_ID, {
+    variables: {id},
+  });
 
-    fetchItem();
-  }, [id]);
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
 
-  if (loading) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="100vh"
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!item) {
-    return (
-      <Container maxWidth="md">
-        <Typography variant="h4">Item not found</Typography>
-      </Container>
-    );
-  }
+  const item = data?.item;
 
   return (
-    <Container maxWidth="md">
-      <Paper elevation={3} sx={{p: 4, mt: 4}}>
-        <Typography variant="h4" gutterBottom>
+    <Box sx={{flexGrow: 1, mt: 8, ml: {sm: 30}}}>
+      <Container maxWidth="lg">
+        <Typography variant="h4" gutterBottom sx={{mb: 4}}>
           {item.title}
         </Typography>
-        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-          {item.type}
+        <Typography variant="subtitle1" gutterBottom>
+          by {item.author}
         </Typography>
-        <Typography variant="body1" paragraph>
+        <Typography variant="body1" gutterBottom>
           {item.description}
         </Typography>
-        <Box mt={2}>
-          {item.tags.map((tag, index) => (
-            <Chip key={index} label={tag} sx={{mr: 1, mb: 1}} />
-          ))}
-        </Box>
-      </Paper>
-    </Container>
+        <Typography variant="body2" color="text.secondary">
+          Type: {type}
+        </Typography>
+      </Container>
+    </Box>
   );
 };
 

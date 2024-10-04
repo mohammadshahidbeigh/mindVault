@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {
   Container,
   Typography,
@@ -8,27 +8,32 @@ import {
   Box,
 } from "@mui/material";
 import {useNavigate} from "react-router-dom";
+import {useQuery} from "@apollo/client";
+import {GET_ITEMS} from "../../graphql/queries";
 
 const ResearchPaperPage: React.FC = () => {
   const navigate = useNavigate();
+  const {data} = useQuery(GET_ITEMS);
+  const [researchPapers, setResearchPapers] = useState<
+    {id: string; title: string; author: string; description: string}[]
+  >([]);
 
-  // Sample data, replace with actual data from API or state
-  const researchPapers = [
-    {
-      id: 1,
-      title: "Research Paper 1",
-      author: "John Doe",
-      abstract: "Abstract of Research Paper 1",
-    },
-    {
-      id: 2,
-      title: "Research Paper 2",
-      author: "Jane Smith",
-      abstract: "Abstract of Research Paper 2",
-    },
-  ];
+  useEffect(() => {
+    if (data) {
+      const papers = data.items.filter(
+        (item: {
+          id: string;
+          title: string;
+          author: string;
+          description: string;
+          type: string;
+        }) => item.type === "Research Papers"
+      );
+      setResearchPapers(papers);
+    }
+  }, [data]);
 
-  const handlePaperClick = (id: number) => {
+  const handlePaperClick = (id: string) => {
     navigate(`/detail/${id}?type=research-paper`);
   };
 
@@ -36,7 +41,7 @@ const ResearchPaperPage: React.FC = () => {
     <Box sx={{flexGrow: 1, mt: 8, ml: {sm: 30}}}>
       <Container maxWidth="lg">
         <Typography variant="h4" gutterBottom sx={{mb: 4}}>
-          Research Papers
+          Research Papers ({researchPapers.length})
         </Typography>
         <Grid container spacing={3}>
           {researchPapers.map((paper) => (
@@ -58,7 +63,7 @@ const ResearchPaperPage: React.FC = () => {
                     by {paper.author}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {paper.abstract}
+                    {paper.description}
                   </Typography>
                 </CardContent>
               </Card>

@@ -69,3 +69,15 @@ export const DELETE_ITEM = gql`
     }
   }
 `;
+
+export const GET_ITEM_BY_ID = gql`
+  query GetItemById($id: ID!) {
+    item(id: $id) {
+      id
+      title
+      description
+      type
+      tags
+    }
+  }
+`;

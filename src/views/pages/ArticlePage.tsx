@@ -8,25 +8,30 @@ import {
   Box,
 } from "@mui/material";
 import {useNavigate} from "react-router-dom";
-import {getAllArticles} from "../../controllers/ArticleController";
-import {Article} from "../../models/ArticleModel";
+import {useQuery} from "@apollo/client";
+import {GET_ITEMS} from "../../graphql/queries";
 
 const ArticlePage: React.FC = () => {
   const navigate = useNavigate();
-  const [articles, setArticles] = useState<Article[]>([]);
+  const {data} = useQuery(GET_ITEMS);
+  const [articles, setArticles] = useState<
+    {id: string; title: string; author: string; description: string}[]
+  >([]);
 
   useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const fetchedArticles = await getAllArticles();
-        setArticles(fetchedArticles);
-      } catch (error) {
-        console.error("Error fetching articles:", error);
-      }
-    };
-
-    fetchArticles();
-  }, []);
+    if (data) {
+      const articlesData = data.items.filter(
+        (item: {
+          id: string;
+          title: string;
+          author: string;
+          description: string;
+          type: string;
+        }) => item.type === "Articles"
+      );
+      setArticles(articlesData);
+    }
+  }, [data]);
 
   const handleArticleClick = (id: string) => {
     navigate(`/detail/${id}?type=article`);
@@ -36,10 +41,10 @@ const ArticlePage: React.FC = () => {
     <Box sx={{flexGrow: 1, mt: 8, ml: {sm: 30}}}>
       <Container maxWidth="lg">
         <Typography variant="h4" gutterBottom sx={{mb: 4}}>
-          Articles
+          Articles ({articles.length})
         </Typography>
         <Grid container spacing={3}>
-          {articles.map((article: Article) => (
+          {articles.map((article) => (
             <Grid item xs={12} sm={6} md={4} key={article.id}>
               <Card
                 elevation={3}
@@ -50,8 +55,15 @@ const ArticlePage: React.FC = () => {
                   <Typography variant="h6" gutterBottom>
                     {article.title}
                   </Typography>
+                  <Typography
+                    variant="subtitle2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    by {article.author}
+                  </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {article.content}
+                    {article.description}
                   </Typography>
                 </CardContent>
               </Card>

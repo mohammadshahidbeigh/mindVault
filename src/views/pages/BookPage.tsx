@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {
   Container,
   Typography,
@@ -8,17 +8,32 @@ import {
   Box,
 } from "@mui/material";
 import {useNavigate} from "react-router-dom";
+import {useQuery} from "@apollo/client";
+import {GET_ITEMS} from "../../graphql/queries";
 
 const BookPage: React.FC = () => {
   const navigate = useNavigate();
+  const {data} = useQuery(GET_ITEMS);
+  const [books, setBooks] = useState<
+    {id: string; title: string; author: string; description: string}[]
+  >([]);
 
-  // Sample data, replace with actual data from API or state
-  const books = [
-    {id: 1, title: "Book 1", description: "Description of Book 1"},
-    {id: 2, title: "Book 2", description: "Description of Book 2"},
-  ];
+  useEffect(() => {
+    if (data) {
+      const booksData = data.items.filter(
+        (item: {
+          id: string;
+          title: string;
+          author: string;
+          description: string;
+          type: string;
+        }) => item.type === "Books"
+      );
+      setBooks(booksData);
+    }
+  }, [data]);
 
-  const handleBookClick = (id: number) => {
+  const handleBookClick = (id: string) => {
     navigate(`/detail/${id}?type=book`);
   };
 
@@ -26,7 +41,7 @@ const BookPage: React.FC = () => {
     <Box sx={{flexGrow: 1, mt: 8, ml: {sm: 30}}}>
       <Container maxWidth="lg">
         <Typography variant="h4" gutterBottom sx={{mb: 4}}>
-          Books
+          Books ({books.length})
         </Typography>
         <Grid container spacing={3}>
           {books.map((book) => (
@@ -39,6 +54,13 @@ const BookPage: React.FC = () => {
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
                     {book.title}
+                  </Typography>
+                  <Typography
+                    variant="subtitle2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    by {book.author}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {book.description}
