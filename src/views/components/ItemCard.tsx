@@ -26,6 +26,13 @@ interface Props {
 }
 
 const ItemCard: React.FC<Props> = ({item, index, onEdit, onDelete}) => {
+  const truncateDescription = (description: string, maxLength: number) => {
+    if (description.length > maxLength) {
+      return description.substring(0, maxLength) + "...";
+    }
+    return description;
+  };
+
   return (
     <Fade in={true} timeout={500 * (index + 1)}>
       <Card
@@ -41,7 +48,7 @@ const ItemCard: React.FC<Props> = ({item, index, onEdit, onDelete}) => {
             {item.title}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {item.description}
+            {truncateDescription(item.description, 100)}
           </Typography>
           <Box sx={{mt: 2}}>
             {item.tags.map((tag, index) => (
