@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {useParams, useLocation, useNavigate} from "react-router-dom";
 import {useQuery, useMutation} from "@apollo/client";
 import {GET_ITEM_BY_ID, DELETE_ITEM, UPDATE_ITEM} from "../../graphql/queries";
@@ -17,6 +17,8 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import {Edit as EditIcon, Delete as DeleteIcon} from "@mui/icons-material";
 import ItemDialog from "../components/ItemDialog";
@@ -26,7 +28,9 @@ const DetailPage: React.FC = () => {
   const {id} = useParams<{id: string}>();
   const location = useLocation();
   const navigate = useNavigate();
-  const type = new URLSearchParams(location.search).get("type");
+  const [type, setType] = useState<string | null>(
+    new URLSearchParams(location.search).get("type")
+  );
 
   const {data, loading, error, refetch} = useQuery(GET_ITEM_BY_ID, {
     variables: {id},
@@ -45,6 +49,16 @@ const DetailPage: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [errors, setErrors] = useState({title: "", description: "", tags: ""});
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
+    "success"
+  );
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    setType(searchParams.get("type"));
+  }, [location.search]);
 
   if (loading) return <CircularProgress />;
   if (error) return <p>Error: {error.message}</p>;
@@ -58,8 +72,18 @@ const DetailPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    await deleteItem({variables: {id}});
-    navigate(-1); // Navigate back to the previous page
+    try {
+      await deleteItem({variables: {id}});
+      setSnackbarMessage("Item deleted successfully!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+      navigate(-1); // Navigate back to the previous page
+    } catch (error: unknown) {
+      setSnackbarMessage("Failed to delete item. Please try again.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      console.error("Delete error:", error);
+    }
   };
 
   const handleDialogClose = () => {
@@ -76,11 +100,30 @@ const DetailPage: React.FC = () => {
   };
 
   const handleDialogSubmit = async () => {
-    if (editingItem) {
-      await updateItem({variables: {id: newItem.id, input: newItem}});
+    try {
+      if (editingItem) {
+        await updateItem({
+          variables: {
+            id: newItem.id,
+            title: newItem.title,
+            description: newItem.description,
+            type: newItem.type,
+            tags: newItem.tags,
+          },
+        });
+        setSnackbarMessage("Item updated successfully!");
+        setSnackbarSeverity("success");
+        setType(newItem.type);
+      }
+      refetch();
+      handleDialogClose();
+    } catch (error) {
+      console.error("Update error:", error);
+      setSnackbarMessage("Failed to update item. Please try again.");
+      setSnackbarSeverity("error");
+    } finally {
+      setSnackbarOpen(true);
     }
-    refetch();
-    handleDialogClose();
   };
 
   const handleConfirmDeleteOpen = () => {
@@ -170,6 +213,19 @@ const DetailPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+          sx={{width: "100%"}}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

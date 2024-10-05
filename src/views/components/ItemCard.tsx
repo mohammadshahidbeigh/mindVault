@@ -30,7 +30,7 @@ const ItemCard: React.FC<Props> = ({item, index, onEdit, onDelete}) => {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
-    navigate(`/detail/${item.id}`);
+    navigate(`/detail/${item.id}?type=${item.type}`);
   };
 
   const truncateDescription = (description: string, maxLength: number) => {
