@@ -45,9 +45,13 @@ const BookPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{flexGrow: 1, mt: 8, ml: {sm: 30}}}>
+    <Box sx={{flexGrow: 1, mt: 6, ml: {sm: 30}}}>
       <Container maxWidth="lg">
-        <Typography variant="h4" gutterBottom sx={{mb: 4}}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{mb: 4, fontWeight: "bold", color: "primary.main"}}
+        >
           Books ({books.length})
         </Typography>
         <Grid container spacing={3}>

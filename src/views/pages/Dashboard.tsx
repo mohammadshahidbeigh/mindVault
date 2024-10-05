@@ -11,7 +11,13 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import {Add as AddIcon, Search as SearchIcon} from "@mui/icons-material";
+import {
+  Add as AddIcon,
+  Search as SearchIcon,
+  Article as ArticleIcon,
+  LibraryBooks as LibraryBooksIcon,
+  School as SchoolIcon,
+} from "@mui/icons-material";
 import CategoryCard from "../components/CategoryCard";
 import ItemCard from "../components/ItemCard";
 import ItemDialog from "../components/ItemDialog";
@@ -36,14 +42,14 @@ const Dashboard: React.FC = () => {
 
   // Categories state with proper typing
   const [categories, setCategories] = useState([
-    {title: "Articles", icon: <AddIcon />, count: 0, path: "/articles"},
+    {title: "Articles", icon: <ArticleIcon />, count: 0, path: "/articles"},
     {
       title: "Research Papers",
-      icon: <AddIcon />,
+      icon: <SchoolIcon />,
       count: 0,
       path: "/research-papers",
     },
-    {title: "Books", icon: <AddIcon />, count: 0, path: "/books"},
+    {title: "Books", icon: <LibraryBooksIcon />, count: 0, path: "/books"},
   ]);
 
   // Items state with type `Item[]`
