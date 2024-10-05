@@ -25,7 +25,11 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import {Edit as EditIcon, Delete as DeleteIcon} from "@mui/icons-material";
+import {
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Folder as FolderIcon,
+} from "@mui/icons-material";
 import ItemDialog from "../components/ItemDialog";
 import {Item} from "../../utils/validateInputs";
 import SyntaxHighlighter from "react-syntax-highlighter";
@@ -205,9 +209,15 @@ const DetailPage: React.FC = () => {
                   />
                 ))}
               </Box>
-              <Typography variant="body2" color="text.secondary" sx={{mt: 2}}>
-                Type: {type}
-              </Typography>
+              <Box sx={{mt: 2, display: "flex", alignItems: "center"}}>
+                <Chip
+                  icon={<FolderIcon />}
+                  label={`Type: ${type}`}
+                  color="secondary"
+                  variant="outlined"
+                  size="small"
+                />
+              </Box>
               <Box sx={{mt: 2, display: "flex", justifyContent: "flex-end"}}>
                 <IconButton
                   size="small"
