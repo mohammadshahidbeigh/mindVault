@@ -1,24 +1,12 @@
 import React, {useEffect, useState} from "react";
-import {
-  Container,
-  Typography,
-  Grid,
-  Box,
-  IconButton,
-  Fade,
-} from "@mui/material";
+import {Container, Typography, Grid, Box, Fade} from "@mui/material";
 import {useNavigate} from "react-router-dom";
-import {useQuery, useMutation} from "@apollo/client";
-import {GET_ITEMS, DELETE_ITEM, UPDATE_ITEM} from "../../graphql/queries";
-import {Edit as EditIcon, Delete as DeleteIcon} from "@mui/icons-material";
-import ItemDialog from "../components/ItemDialog";
-import {Item} from "../../utils/validateInputs";
+import {useQuery} from "@apollo/client";
+import {GET_ITEMS} from "../../graphql/queries";
 
 const ArticlePage: React.FC = () => {
   const navigate = useNavigate();
-  const {data, refetch} = useQuery(GET_ITEMS);
-  const [deleteItem] = useMutation(DELETE_ITEM);
-  const [updateItem] = useMutation(UPDATE_ITEM);
+  const {data} = useQuery(GET_ITEMS);
   const [articles, setArticles] = useState<
     {
       id: string;
@@ -28,16 +16,6 @@ const ArticlePage: React.FC = () => {
       tags: string[];
     }[]
   >([]);
-  const [editingItem, setEditingItem] = useState<Item | null>(null);
-  const [newItem, setNewItem] = useState<Item>({
-    id: "",
-    title: "",
-    description: "",
-    tags: [],
-    type: "Articles",
-  });
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [errors, setErrors] = useState({title: "", description: "", tags: ""});
 
   useEffect(() => {
     if (data) {
@@ -57,38 +35,6 @@ const ArticlePage: React.FC = () => {
 
   const handleArticleClick = (id: string) => {
     navigate(`/detail/${id}?type=article`);
-  };
-
-  const handleEdit = (item: Item) => {
-    setEditingItem(item);
-    setNewItem(item);
-    setDialogOpen(true);
-  };
-
-  const handleDelete = async (id: string) => {
-    await deleteItem({variables: {id}});
-    refetch();
-  };
-
-  const handleDialogClose = () => {
-    setDialogOpen(false);
-    setEditingItem(null);
-    setNewItem({
-      id: "",
-      title: "",
-      description: "",
-      tags: [],
-      type: "Articles",
-    });
-    setErrors({title: "", description: "", tags: ""});
-  };
-
-  const handleDialogSubmit = async () => {
-    if (editingItem) {
-      await updateItem({variables: {id: newItem.id, input: newItem}});
-    }
-    refetch();
-    handleDialogClose();
   };
 
   const truncateDescription = (description: string, maxLength: number) => {
@@ -150,47 +96,12 @@ const ArticlePage: React.FC = () => {
                       </Typography>
                     ))}
                   </Box>
-                  <Box
-                    sx={{mt: 2, display: "flex", justifyContent: "flex-end"}}
-                  >
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEdit({
-                          ...article,
-                          type: "Articles",
-                        });
-                      }}
-                      sx={{mr: 1}}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(article.id);
-                      }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
                 </Box>
               </Grid>
             </Fade>
           ))}
         </Grid>
       </Container>
-      <ItemDialog
-        open={dialogOpen}
-        editingItem={editingItem}
-        newItem={newItem}
-        setNewItem={setNewItem}
-        onClose={handleDialogClose}
-        onSubmit={handleDialogSubmit}
-        errors={errors}
-      />
     </Box>
   );
 };

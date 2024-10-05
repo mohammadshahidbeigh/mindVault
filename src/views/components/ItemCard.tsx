@@ -9,6 +9,7 @@ import {
   Fade,
 } from "@mui/material";
 import {Edit as EditIcon, Delete as DeleteIcon} from "@mui/icons-material";
+import {useNavigate} from "react-router-dom";
 
 interface Item {
   id: string;
@@ -26,6 +27,12 @@ interface Props {
 }
 
 const ItemCard: React.FC<Props> = ({item, index, onEdit, onDelete}) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/detail/${item.id}`);
+  };
+
   const truncateDescription = (description: string, maxLength: number) => {
     if (description.length > maxLength) {
       return description.substring(0, maxLength) + "...";
@@ -42,6 +49,7 @@ const ItemCard: React.FC<Props> = ({item, index, onEdit, onDelete}) => {
           transition: "transform 0.3s ease-in-out",
           "&:hover": {transform: "scale(1.05)"},
         }}
+        onClick={handleCardClick}
       >
         <CardContent>
           <Typography variant="h6" gutterBottom color="primary">
@@ -68,10 +76,23 @@ const ItemCard: React.FC<Props> = ({item, index, onEdit, onDelete}) => {
             ))}
           </Box>
           <Box sx={{mt: 2, display: "flex", justifyContent: "flex-end"}}>
-            <IconButton size="small" onClick={() => onEdit(item)} sx={{mr: 1}}>
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(item);
+              }}
+              sx={{mr: 1}}
+            >
               <EditIcon />
             </IconButton>
-            <IconButton size="small" onClick={() => onDelete(item)}>
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(item);
+              }}
+            >
               <DeleteIcon />
             </IconButton>
           </Box>
