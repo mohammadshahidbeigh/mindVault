@@ -28,6 +28,8 @@ import {
 import {Edit as EditIcon, Delete as DeleteIcon} from "@mui/icons-material";
 import ItemDialog from "../components/ItemDialog";
 import {Item} from "../../utils/validateInputs";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import {docco} from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 const DetailPage: React.FC = () => {
   const {id} = useParams<{id: string}>();
@@ -153,6 +155,26 @@ const DetailPage: React.FC = () => {
     setConfirmDeleteOpen(false);
   };
 
+  const isCode = (text: string) => {
+    // Simple check for code: if it contains multiple lines and special characters
+    return text.includes("\n") && /[{}()[\]$&+=@#~!^*|%<>?]/.test(text);
+  };
+
+  const renderDescription = (description: string) => {
+    if (isCode(description)) {
+      return (
+        <SyntaxHighlighter language="javascript" style={docco}>
+          {description}
+        </SyntaxHighlighter>
+      );
+    }
+    return (
+      <Typography variant="body1" gutterBottom>
+        {description}
+      </Typography>
+    );
+  };
+
   return (
     <Box sx={{flexGrow: 1, mt: 8, ml: {sm: 30}}}>
       <Container maxWidth="lg">
@@ -172,9 +194,7 @@ const DetailPage: React.FC = () => {
               <Typography variant="subtitle1" gutterBottom>
                 {item.author}
               </Typography>
-              <Typography variant="body1" gutterBottom>
-                {item.description}
-              </Typography>
+              {renderDescription(item.description)}
               <Box sx={{mt: 2}}>
                 {item.tags.map((tag: string, index: number) => (
                   <Chip
