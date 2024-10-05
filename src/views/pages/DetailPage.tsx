@@ -1,7 +1,12 @@
 import React, {useState, useEffect} from "react";
 import {useParams, useLocation, useNavigate} from "react-router-dom";
 import {useQuery, useMutation} from "@apollo/client";
-import {GET_ITEM_BY_ID, DELETE_ITEM, UPDATE_ITEM} from "../../graphql/queries";
+import {
+  GET_ITEM_BY_ID,
+  DELETE_ITEM,
+  UPDATE_ITEM,
+  GET_ITEMS,
+} from "../../graphql/queries";
 import {
   Container,
   Typography,
@@ -36,7 +41,9 @@ const DetailPage: React.FC = () => {
     variables: {id},
   });
 
-  const [deleteItem] = useMutation(DELETE_ITEM);
+  const [deleteItem] = useMutation(DELETE_ITEM, {
+    refetchQueries: [{query: GET_ITEMS}],
+  });
   const [updateItem] = useMutation(UPDATE_ITEM);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [newItem, setNewItem] = useState<Item>({
@@ -65,6 +72,10 @@ const DetailPage: React.FC = () => {
 
   const item = data?.item;
 
+  if (!item) {
+    return <p>Item not found</p>;
+  }
+
   const handleEdit = (item: Item) => {
     setEditingItem(item);
     setNewItem(item);
@@ -73,11 +84,19 @@ const DetailPage: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteItem({variables: {id}});
+      await deleteItem({
+        variables: {id},
+        update: (cache) => {
+          cache.evict({id: `Item:${id}`});
+          cache.gc();
+        },
+      });
       setSnackbarMessage("Item deleted successfully!");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      navigate(-1); // Navigate back to the previous page
+      setTimeout(() => {
+        navigate(-1);
+      }, 1000);
     } catch (error: unknown) {
       setSnackbarMessage("Failed to delete item. Please try again.");
       setSnackbarSeverity("error");
