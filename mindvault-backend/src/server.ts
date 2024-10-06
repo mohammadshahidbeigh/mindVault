@@ -47,9 +47,9 @@ const server = new ApolloServer({
           throw new Error("Invalid token");
         }
       } else {
-        // Instead of throwing an error, return an object with no user
-        console.warn("No authorization header provided");
-        return {user: null};
+        // Suppress the warning or handle it differently
+        // console.warn("No authorization header provided");
+        return {user: null}; // Return an object with no user
       }
     } catch (error) {
       console.error("Authentication error:", error);
