@@ -10,12 +10,13 @@ import {
   Avatar,
 } from "@mui/material";
 import {useDispatch} from "react-redux";
-import {login} from "../../store/userSlice";
 import {useNavigate, Link} from "react-router-dom";
 import {useSnackbar} from "notistack";
 import {Formik, Form, Field} from "formik";
 import * as Yup from "yup";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import {registerUser} from "../../store/userSlice";
+import {AppDispatch} from "../../store";
 
 const SignupSchema = Yup.object().shape({
   name: Yup.string().required("Required"),
@@ -29,7 +30,7 @@ const SignupSchema = Yup.object().shape({
 });
 
 const Signup: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const {enqueueSnackbar} = useSnackbar();
 
@@ -38,20 +39,15 @@ const Signup: React.FC = () => {
     email: string;
     password: string;
   }) => {
-    // Simulating a successful signup
-    dispatch(login({email: values.email, name: values.name}));
-
-    // Show success notification at lower right side
-    enqueueSnackbar("Signup successful", {
-      variant: "success",
-      anchorOrigin: {
-        vertical: "bottom",
-        horizontal: "right",
-      },
-    });
-
-    // Navigate to dashboard after signup
-    navigate("/dashboard");
+    dispatch(registerUser(values))
+      .unwrap()
+      .then(() => {
+        enqueueSnackbar("Signup successful", {variant: "success"});
+        navigate("/dashboard");
+      })
+      .catch((error: string) => {
+        enqueueSnackbar(error, {variant: "error"});
+      });
   };
 
   return (

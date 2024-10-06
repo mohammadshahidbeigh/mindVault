@@ -16,6 +16,7 @@
     "@mui/icons-material": "^6.1.0",
     "@mui/material": "^6.1.0",
     "@reduxjs/toolkit": "^2.2.7",
+    "axios": "^1.7.7",
     "formik": "^2.4.6",
     "graphql": "^16.9.0",
     "notistack": "^3.0.1",

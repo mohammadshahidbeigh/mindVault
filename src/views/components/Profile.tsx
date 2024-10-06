@@ -1,29 +1,12 @@
-import React, {useState} from "react";
-import {useSelector, useDispatch} from "react-redux";
+import React from "react";
+import {useSelector} from "react-redux";
 import {RootState} from "../../store";
-import {login} from "../../store/userSlice";
-import {
-  Box,
-  Container,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-} from "@mui/material";
+import {Box, Container, Paper, Typography} from "@mui/material";
 
 const Profile: React.FC = () => {
-  const dispatch = useDispatch();
-  const userInfo = useSelector((state: RootState) => state.user);
+  const userState = useSelector((state: RootState) => state.user);
 
-  const [name, setName] = useState(userInfo?.userInfo?.name || "");
-  const [email, setEmail] = useState(userInfo?.userInfo?.email || "");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    dispatch(login({name, email}));
-  };
-
-  if (!userInfo) {
+  if (!userState.isLoggedIn) {
     return <div>Please log in to view your profile.</div>;
   }
 
@@ -44,39 +27,13 @@ const Profile: React.FC = () => {
           <Typography variant="h4" align="center" gutterBottom>
             User Profile
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} sx={{mt: 2}}>
-            <TextField
-              fullWidth
-              id="name"
-              label="Name"
-              value={name}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setName(e.target.value)
-              }
-              margin="normal"
-              variant="outlined"
-            />
-            <TextField
-              fullWidth
-              id="email"
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setEmail(e.target.value)
-              }
-              margin="normal"
-              variant="outlined"
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              sx={{mt: 3, mb: 2}}
-            >
-              Update Profile
-            </Button>
+          <Box sx={{mt: 2}}>
+            <Typography variant="body1">
+              Name: {userState.userInfo?.name}
+            </Typography>
+            <Typography variant="body1">
+              Email: {userState.userInfo?.email}
+            </Typography>
           </Box>
         </Paper>
       </Container>

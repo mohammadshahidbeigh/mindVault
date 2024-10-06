@@ -10,12 +10,13 @@ import {
   Avatar,
 } from "@mui/material";
 import {useDispatch} from "react-redux";
-import {login} from "../../store/userSlice";
 import {useNavigate, Link} from "react-router-dom";
 import {useSnackbar} from "notistack";
 import {Formik, Form, Field} from "formik";
 import * as Yup from "yup";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import {loginUser} from "../../store/userSlice";
+import {AppDispatch} from "../../store";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Required"),
@@ -23,25 +24,20 @@ const LoginSchema = Yup.object().shape({
 });
 
 const Login: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const {enqueueSnackbar} = useSnackbar();
 
   const handleLogin = (values: {email: string; password: string}) => {
-    // Simulating a successful login
-    dispatch(login({email: values.email, name: "John Doe"}));
-
-    // Show success notification at lower right side
-    enqueueSnackbar("Login successful", {
-      variant: "success",
-      anchorOrigin: {
-        vertical: "bottom",
-        horizontal: "right",
-      },
-    });
-
-    // Navigate to dashboard after login
-    navigate("/dashboard");
+    dispatch(loginUser(values))
+      .unwrap()
+      .then(() => {
+        enqueueSnackbar("Login successful", {variant: "success"});
+        navigate("/dashboard");
+      })
+      .catch((error: string) => {
+        enqueueSnackbar(error, {variant: "error"});
+      });
   };
 
   return (
@@ -83,7 +79,7 @@ const Login: React.FC = () => {
                 name="email"
                 label="Email Address"
                 variant="outlined"
-                error={touched.email && errors.email}
+                error={touched.email && !!errors.email}
                 helperText={touched.email && errors.email}
               />
               <Field
@@ -94,7 +90,7 @@ const Login: React.FC = () => {
                 label="Password"
                 type="password"
                 variant="outlined"
-                error={touched.password && errors.password}
+                error={touched.password && !!errors.password}
                 helperText={touched.password && errors.password}
               />
               <Button

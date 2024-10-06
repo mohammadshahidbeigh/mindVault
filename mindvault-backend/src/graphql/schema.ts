@@ -6,6 +6,9 @@ import {ICategory} from "../models/Category";
 import Category from "../models/Category";
 import {IItem} from "../models/Item";
 import Item from "../models/Item";
+import {generateToken} from "../utils/auth";
+import {AuthenticationError, UserInputError} from "apollo-server-express";
+import bcrypt from "bcryptjs";
 
 export const typeDefs = gql`
   type User {
@@ -28,6 +31,11 @@ export const typeDefs = gql`
     tags: [String!]!
   }
 
+  type AuthPayload {
+    token: String!
+    user: User!
+  }
+
   type Query {
     hello: String
     users: [User!]!
@@ -39,6 +47,8 @@ export const typeDefs = gql`
   }
 
   type Mutation {
+    register(name: String!, email: String!, password: String!): AuthPayload!
+    login(email: String!, password: String!): AuthPayload!
     addUser(name: String!, email: String!): User!
     updateUser(id: ID!, name: String, email: String): User!
     deleteUser(id: ID!): DeleteResponse!
@@ -105,13 +115,23 @@ interface UpdateCategoryArgs {
   count: number;
 }
 
+interface RegisterArgs {
+  name: string;
+  email: string;
+  password: string;
+}
+
+interface LoginArgs {
+  email: string;
+  password: string;
+}
+
 export const resolvers: IResolvers = {
   Query: {
     hello: (): string => "Hello world!",
     users: async (): Promise<IUser[]> => {
       try {
-        const users = await User.find();
-        return users;
+        return await User.find();
       } catch (err) {
         console.error("Error fetching users", err);
         throw new Error("Failed to fetch users");
@@ -119,8 +139,7 @@ export const resolvers: IResolvers = {
     },
     user: async (_: unknown, {id}): Promise<IUser | null> => {
       try {
-        const user = await User.findById(id);
-        return user;
+        return await User.findById(id);
       } catch (err) {
         console.error("Error fetching user", err);
         throw new Error("Failed to fetch user");
@@ -128,14 +147,12 @@ export const resolvers: IResolvers = {
     },
     categories: async (): Promise<ICategory[]> => {
       try {
-        const categories = await Category.find();
-        return categories;
+        return await Category.find();
       } catch (err) {
         console.error("Error fetching categories", err);
         throw new Error("Failed to fetch categories");
       }
     },
-    // ... existing code ...
     items: async (
       _: unknown,
       {search}: {search?: string}
@@ -144,18 +161,15 @@ export const resolvers: IResolvers = {
         const query = search
           ? {title: {$regex: String(search), $options: "i"}}
           : {};
-        const items = await Item.find(query);
-        return items;
+        return await Item.find(query);
       } catch (err) {
         console.error("Error fetching items", err);
         throw new Error("Failed to fetch items");
       }
     },
-    // ... existing code ...
     item: async (_: unknown, {id}): Promise<IItem | null> => {
       try {
-        const item = await Item.findById(id);
-        return item;
+        return await Item.findById(id);
       } catch (err) {
         console.error("Error fetching item", err);
         throw new Error("Failed to fetch item");
@@ -163,8 +177,7 @@ export const resolvers: IResolvers = {
     },
     category: async (_: unknown, {id}): Promise<ICategory | null> => {
       try {
-        const category = await Category.findById(id);
-        return category;
+        return await Category.findById(id);
       } catch (err) {
         console.error("Error fetching category", err);
         throw new Error("Failed to fetch category");
@@ -172,6 +185,73 @@ export const resolvers: IResolvers = {
     },
   },
   Mutation: {
+    register: async (
+      _: unknown,
+      args: RegisterArgs
+    ): Promise<{token: string; user: IUser}> => {
+      const {name, email, password} = args;
+
+      try {
+        // Check if the user already exists
+        const existingUser = await User.findOne({email});
+        if (existingUser) {
+          throw new UserInputError("User already exists");
+        }
+
+        // Hash the password before saving
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({name, email, password: hashedPassword});
+        const savedUser = await newUser.save();
+
+        // Generate authentication token
+        const token = generateToken(savedUser.id);
+        return {token, user: savedUser};
+      } catch (err) {
+        console.error("Error registering user", err);
+        throw new Error("Failed to register user");
+      }
+    },
+
+    login: async (
+      _: unknown,
+      {email, password}: LoginArgs
+    ): Promise<{token: string; user: IUser}> => {
+      try {
+        // Step 1: Log that login process has started
+        console.log("Attempting to log in user with email:", email);
+
+        // Step 2: Find the user by email
+        const user = await User.findOne({email});
+        if (!user) {
+          console.error("User not found with email:", email);
+          throw new UserInputError("Invalid email or password");
+        }
+
+        // Step 3: Log that user was found
+        console.log("User found:", user);
+
+        // Step 4: Compare the password
+        const isPasswordValid = await user.comparePassword(password);
+        if (!isPasswordValid) {
+          console.error("Password is invalid for email:", email);
+          throw new UserInputError("Invalid email or password");
+        }
+
+        // Step 5: Log that password is valid
+        console.log("Password is valid for user:", user.email);
+
+        // Step 6: Generate token
+        const token = generateToken(user.id);
+        return {token, user};
+      } catch (err) {
+        console.error("Error logging in user:", err);
+        if (err instanceof UserInputError) {
+          throw err;
+        }
+        throw new AuthenticationError("Failed to login");
+      }
+    },
+
     addUser: async (_: unknown, args: AddUserArgs): Promise<IUser> => {
       const {name, email} = args;
 

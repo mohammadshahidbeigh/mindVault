@@ -1,6 +1,6 @@
 import {gql} from "@apollo/client";
 
-// Example: Query to fetch all items
+// Query to fetch all items
 export const GET_ITEMS = gql`
   query GetItems {
     items {
@@ -13,7 +13,7 @@ export const GET_ITEMS = gql`
   }
 `;
 
-// Example: Mutation to add a new item
+// Mutation to add a new item
 export const ADD_ITEM = gql`
   mutation AddItem(
     $title: String!
@@ -78,6 +78,34 @@ export const GET_ITEM_BY_ID = gql`
       description
       type
       tags
+    }
+  }
+`;
+
+// Mutation for user registration
+export const REGISTER_USER = gql`
+  mutation RegisterUser($name: String!, $email: String!, $password: String!) {
+    register(name: $name, email: $email, password: $password) {
+      token
+      user {
+        id
+        name
+        email
+      }
+    }
+  }
+`;
+
+// Mutation for user login
+export const LOGIN_USER = gql`
+  mutation LoginUser($email: String!, $password: String!) {
+    login(email: $email, password: $password) {
+      token
+      user {
+        id
+        name
+        email
+      }
     }
   }
 `;
