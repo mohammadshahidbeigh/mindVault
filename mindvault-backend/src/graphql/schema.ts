@@ -217,30 +217,24 @@ export const resolvers: IResolvers = {
       {email, password}: LoginArgs
     ): Promise<{token: string; user: IUser}> => {
       try {
-        // Step 1: Log that login process has started
         console.log("Attempting to log in user with email:", email);
 
-        // Step 2: Find the user by email
         const user = await User.findOne({email});
         if (!user) {
           console.error("User not found with email:", email);
           throw new UserInputError("Invalid email or password");
         }
 
-        // Step 3: Log that user was found
         console.log("User found:", user);
 
-        // Step 4: Compare the password
-        const isPasswordValid = await user.comparePassword(password);
+        const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
           console.error("Password is invalid for email:", email);
           throw new UserInputError("Invalid email or password");
         }
 
-        // Step 5: Log that password is valid
         console.log("Password is valid for user:", user.email);
 
-        // Step 6: Generate token
         const token = generateToken(user.id);
         return {token, user};
       } catch (err) {

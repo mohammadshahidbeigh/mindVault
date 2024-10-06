@@ -1,4 +1,5 @@
 // src/store/userSlice.ts
+// src/store/userSlice.ts
 import {createSlice, createAsyncThunk, PayloadAction} from "@reduxjs/toolkit";
 import api from "../utils/axiosConfig";
 
@@ -47,8 +48,8 @@ export const registerUser = createAsyncThunk(
     try {
       const response = await api.post("/graphql", {
         query: `
-          mutation {
-            register(name: "${name}", email: "${email}", password: "${password}") {
+          mutation register($name: String!, $email: String!, $password: String!) {
+            register(name: $name, email: $email, password: $password) {
               token
               user {
                 name
@@ -57,6 +58,7 @@ export const registerUser = createAsyncThunk(
             }
           }
         `,
+        variables: {name, email, password},
       });
 
       if (response.data.errors) {
@@ -94,8 +96,8 @@ export const loginUser = createAsyncThunk(
     try {
       const response = await api.post("/graphql", {
         query: `
-          mutation {
-            login(email: "${email}", password: "${password}") {
+          mutation login($email: String!, $password: String!) {
+            login(email: $email, password: $password) {
               token
               user {
                 name
@@ -104,13 +106,29 @@ export const loginUser = createAsyncThunk(
             }
           }
         `,
+        variables: {email, password},
       });
+
+      if (response.data.errors) {
+        const errorMessage = response.data.errors[0]?.message || "Login failed";
+        return rejectWithValue(errorMessage);
+      }
+
       return response.data.data.login as LoginResponse;
     } catch (error: unknown) {
       if (error instanceof Error) {
-        return rejectWithValue(error.message);
+        return rejectWithValue(`Login failed: ${error.message}`);
       }
-      return rejectWithValue("An unknown error occurred");
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const axiosError = error as {
+          response?: {data?: {errors?: {message: string}[]}};
+        };
+        const errorMessage =
+          axiosError.response?.data?.errors?.[0]?.message ||
+          "An unknown error occurred during login";
+        return rejectWithValue(errorMessage);
+      }
+      return rejectWithValue("An unknown error occurred during login");
     }
   }
 );
