@@ -1,5 +1,5 @@
 // src/pages/Signup.tsx
-import React from "react";
+import React, {useState} from "react";
 import {
   Container,
   TextField,
@@ -8,6 +8,8 @@ import {
   Box,
   Paper,
   Avatar,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import {useDispatch} from "react-redux";
 import {useNavigate, Link} from "react-router-dom";
@@ -15,6 +17,8 @@ import {useSnackbar} from "notistack";
 import {Formik, Form, Field} from "formik";
 import * as Yup from "yup";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {registerUser} from "../../store/userSlice";
 import {AppDispatch} from "../../store";
 
@@ -33,6 +37,8 @@ const Signup: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const {enqueueSnackbar} = useSnackbar();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSignup = (values: {
     name: string;
@@ -48,6 +54,14 @@ const Signup: React.FC = () => {
       .catch((error: string) => {
         enqueueSnackbar(error, {variant: "error"});
       });
+  };
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const handleToggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword((prev) => !prev);
   };
 
   return (
@@ -113,10 +127,27 @@ const Signup: React.FC = () => {
                 margin="dense"
                 name="password"
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 variant="outlined"
                 error={touched.password && errors.password}
                 helperText={touched.password && errors.password}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleTogglePasswordVisibility}
+                        edge="end"
+                      >
+                        {showPassword ? (
+                          <VisibilityOffIcon />
+                        ) : (
+                          <VisibilityIcon />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
               <Field
                 as={TextField}
@@ -124,10 +155,27 @@ const Signup: React.FC = () => {
                 margin="dense"
                 name="confirmPassword"
                 label="Confirm Password"
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 variant="outlined"
                 error={touched.confirmPassword && errors.confirmPassword}
                 helperText={touched.confirmPassword && errors.confirmPassword}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle confirm password visibility"
+                        onClick={handleToggleConfirmPasswordVisibility}
+                        edge="end"
+                      >
+                        {showConfirmPassword ? (
+                          <VisibilityOffIcon />
+                        ) : (
+                          <VisibilityIcon />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
               <Button
                 variant="contained"

@@ -1,5 +1,5 @@
 // src/pages/Login.tsx
-import React from "react";
+import React, {useState} from "react";
 import {
   Container,
   TextField,
@@ -8,6 +8,8 @@ import {
   Box,
   Paper,
   Avatar,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import {useDispatch} from "react-redux";
 import {useNavigate, Link} from "react-router-dom";
@@ -15,6 +17,8 @@ import {useSnackbar} from "notistack";
 import {Formik, Form, Field} from "formik";
 import * as Yup from "yup";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {loginUser} from "../../store/userSlice";
 import {AppDispatch} from "../../store";
 
@@ -27,6 +31,7 @@ const Login: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const {enqueueSnackbar} = useSnackbar();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = (values: {email: string; password: string}) => {
     dispatch(loginUser(values))
@@ -38,6 +43,10 @@ const Login: React.FC = () => {
       .catch((error: string) => {
         enqueueSnackbar(error, {variant: "error"});
       });
+  };
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
   };
 
   return (
@@ -88,10 +97,27 @@ const Login: React.FC = () => {
                 margin="normal"
                 name="password"
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 variant="outlined"
                 error={touched.password && !!errors.password}
                 helperText={touched.password && errors.password}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleTogglePasswordVisibility}
+                        edge="end"
+                      >
+                        {showPassword ? (
+                          <VisibilityOffIcon />
+                        ) : (
+                          <VisibilityIcon />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
               <Button
                 variant="contained"
@@ -105,7 +131,12 @@ const Login: React.FC = () => {
               <Box sx={{mt: 2, textAlign: "center"}}>
                 <Link
                   to="/forgot-password"
-                  style={{textDecoration: "none", color: "primary.main"}}
+                  style={{
+                    textDecoration: "none",
+                    color: "primary.main",
+                    pointerEvents: "none",
+                    opacity: 0.5,
+                  }}
                 >
                   Forgot password?
                 </Link>
