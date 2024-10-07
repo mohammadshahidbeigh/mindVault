@@ -1,3 +1,4 @@
+// src/graphql/schema.ts
 import {gql} from "apollo-server-express";
 import {IUser} from "../models/User";
 import User from "../models/User";
