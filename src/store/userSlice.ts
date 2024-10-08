@@ -1,5 +1,4 @@
 // src/store/userSlice.ts
-// src/store/userSlice.ts
 import {createSlice, createAsyncThunk, PayloadAction} from "@reduxjs/toolkit";
 import api from "../utils/axiosConfig";
 
