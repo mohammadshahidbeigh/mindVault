@@ -45,7 +45,7 @@ const BookPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{flexGrow: 1, mt: 6, ml: {sm: 30}}}>
+    <Box sx={{flexGrow: 1, mt: 4, ml: {sm: 30}}}>
       <Container maxWidth="lg">
         <Typography
           variant="h4"
