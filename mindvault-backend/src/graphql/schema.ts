@@ -156,11 +156,11 @@ export const resolvers: IResolvers = {
     },
     items: async (
       _: unknown,
-      {search}: {search?: string}
+      {searchTerm}: {searchTerm?: string}
     ): Promise<IItem[]> => {
       try {
-        const query = search
-          ? {title: {$regex: String(search), $options: "i"}}
+        const query = searchTerm
+          ? {title: {$regex: String(searchTerm), $options: "i"}}
           : {};
         return await Item.find(query);
       } catch (err) {
