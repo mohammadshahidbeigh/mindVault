@@ -1,4 +1,4 @@
-// src/graphql/schema.tss
+// src/graphql/schema.tsss
 import {gql} from "apollo-server-express";
 import {IUser} from "../models/User";
 import User from "../models/User";
