@@ -29,6 +29,8 @@ import ItemDialog from "../components/ItemDialog";
 import {Item} from "../../utils/validateInputs";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import {docco} from "react-syntax-highlighter/dist/esm/styles/hljs";
+import {useSelector} from "react-redux";
+import {RootState} from "../../store";
 
 const DetailPage: React.FC = () => {
   const {id} = useParams<{id: string}>();
@@ -37,6 +39,8 @@ const DetailPage: React.FC = () => {
   const [type, setType] = useState<string | null>(
     new URLSearchParams(location.search).get("type")
   );
+
+  const user = useSelector((state: RootState) => state.user.userInfo);
 
   const {data, loading, error, refetch} = useQuery(GET_ITEM_BY_ID, {
     variables: {id},
@@ -84,7 +88,7 @@ const DetailPage: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       await deleteItem({
-        variables: {id},
+        variables: {itemId: id, userId: user?.id},
         update: (cache) => {
           cache.evict({id: `Item:${id}`});
           cache.gc();
@@ -122,7 +126,8 @@ const DetailPage: React.FC = () => {
       if (editingItem) {
         await updateItem({
           variables: {
-            id: newItem.id,
+            itemId: newItem.id,
+            userId: user?.id,
             title: newItem.title,
             description: newItem.description,
             type: newItem.type,
