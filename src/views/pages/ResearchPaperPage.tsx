@@ -2,11 +2,17 @@ import React, {useEffect, useState} from "react";
 import {Container, Typography, Grid, Box, Fade} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import {useQuery} from "@apollo/client";
-import {GET_ITEMS} from "../../graphql/queries";
+import {GET_ITEMS_BY_USER} from "../../graphql/queries";
+import {useSelector} from "react-redux";
+import {RootState} from "../../store";
 
 const ResearchPaperPage: React.FC = () => {
   const navigate = useNavigate();
-  const {data} = useQuery(GET_ITEMS);
+  const user = useSelector((state: RootState) => state.user.userInfo);
+  const {data} = useQuery(GET_ITEMS_BY_USER, {
+    variables: {userId: user?.id},
+    skip: !user?.id,
+  });
   const [researchPapers, setResearchPapers] = useState<
     {
       id: string;
@@ -19,7 +25,7 @@ const ResearchPaperPage: React.FC = () => {
 
   useEffect(() => {
     if (data) {
-      const papers = data.items.filter(
+      const papers = data.itemsByUser.filter(
         (item: {
           id: string;
           title: string;

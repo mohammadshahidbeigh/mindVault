@@ -1,23 +1,5 @@
 import {gql} from "@apollo/client";
 
-// Query to fetch all items
-export const GET_ITEMS = gql`
-  query GetItems {
-    items {
-      id
-      title
-      description
-      type
-      tags
-      user {
-        id
-        name
-        email
-      }
-    }
-  }
-`;
-
 // Mutation to add a new item
 export const ADD_ITEM = gql`
   mutation AddItem(
@@ -34,10 +16,16 @@ export const ADD_ITEM = gql`
       tags: $tags
       user: $userId
     ) {
+      id
       title
       description
       type
-      id
+      tags
+      user {
+        id
+        name
+        email
+      }
     }
   }
 `;
@@ -45,14 +33,16 @@ export const ADD_ITEM = gql`
 // Mutation to update an existing item
 export const UPDATE_ITEM = gql`
   mutation UpdateItem(
-    $id: ID!
-    $title: String!
-    $description: String!
-    $type: String!
-    $tags: [String!]!
+    $itemId: ID!
+    $userId: ID!
+    $title: String
+    $description: String
+    $type: String
+    $tags: [String!]
   ) {
     updateItem(
-      id: $id
+      itemId: $itemId
+      userId: $userId
       title: $title
       description: $description
       type: $type
@@ -74,9 +64,10 @@ export const UPDATE_ITEM = gql`
 
 // Mutation to delete an item
 export const DELETE_ITEM = gql`
-  mutation DeleteItem($id: ID!) {
-    deleteItem(id: $id) {
-      message
+  mutation DeleteItem($itemId: ID!, $userId: ID!) {
+    deleteItem(itemId: $itemId, userId: $userId) {
+      id
+      title
     }
   }
 `;
@@ -122,6 +113,44 @@ export const LOGIN_USER = gql`
         name
         email
       }
+    }
+  }
+`;
+
+// Query to fetch items by user
+export const GET_ITEMS_BY_USER = gql`
+  query GetItemsByUser($userId: ID!) {
+    itemsByUser(userId: $userId) {
+      id
+      title
+      description
+      type
+      tags
+      user {
+        id
+        name
+        email
+      }
+    }
+  }
+`;
+
+// Mutation to update user
+export const UPDATE_USER = gql`
+  mutation UpdateUser($name: String, $email: String) {
+    updateUser(name: $name, email: $email) {
+      id
+      name
+      email
+    }
+  }
+`;
+
+// Mutation to delete user
+export const DELETE_USER = gql`
+  mutation DeleteUser {
+    deleteUser {
+      message
     }
   }
 `;

@@ -25,17 +25,23 @@ import useStarfield from "../../hooks/useStarfield";
 import {validateInputs, Item} from "../../utils/validateInputs";
 import {useQuery, useMutation} from "@apollo/client";
 import {
-  GET_ITEMS,
+  GET_ITEMS_BY_USER,
   ADD_ITEM,
   UPDATE_ITEM,
   DELETE_ITEM,
 } from "../../graphql/queries";
+import {useSelector} from "react-redux";
+import {RootState} from "../../store";
 
 const Dashboard: React.FC = () => {
   const canvasRef = useStarfield();
+  const user = useSelector((state: RootState) => state.user.userInfo);
 
   // Fetch items from GraphQL API
-  const {loading, error, data} = useQuery(GET_ITEMS);
+  const {loading, error, data} = useQuery(GET_ITEMS_BY_USER, {
+    variables: {userId: user?.id},
+    skip: !user?.id,
+  });
   const [addItem] = useMutation(ADD_ITEM);
   const [updateItem] = useMutation(UPDATE_ITEM);
   const [deleteItem] = useMutation(DELETE_ITEM);
@@ -58,12 +64,12 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (data) {
-      setItems(data.items);
-      setFilteredItems(data.items);
+      setItems(data.itemsByUser);
+      setFilteredItems(data.itemsByUser);
 
       // Update category counts based on fetched items
       const updatedCategories = categories.map((category) => {
-        const count = data.items.filter(
+        const count = data.itemsByUser.filter(
           (item: Item) => item.type === category.title
         ).length;
         return {...category, count};
@@ -140,19 +146,22 @@ const Dashboard: React.FC = () => {
     const {isValid, errors} = validateInputs(newItem);
     setErrors(errors);
 
-    if (isValid) {
+    if (isValid && user?.id) {
       if (editingItem) {
         // Update existing item
         try {
           const response = await updateItem({
             variables: {
-              id: editingItem.id,
+              itemId: editingItem.id,
+              userId: user.id,
               title: newItem.title,
               description: newItem.description,
               type: newItem.type,
               tags: newItem.tags,
             },
-            refetchQueries: [{query: GET_ITEMS}],
+            refetchQueries: [
+              {query: GET_ITEMS_BY_USER, variables: {userId: user.id}},
+            ],
           });
 
           const updatedItem = response.data.updateItem;
@@ -175,8 +184,11 @@ const Dashboard: React.FC = () => {
               description: newItem.description,
               type: newItem.type,
               tags: newItem.tags,
+              userId: user.id,
             },
-            refetchQueries: [{query: GET_ITEMS}],
+            refetchQueries: [
+              {query: GET_ITEMS_BY_USER, variables: {userId: user.id}},
+            ],
           });
 
           const newItemWithId = response.data.addItem;
@@ -201,26 +213,30 @@ const Dashboard: React.FC = () => {
 
   // Delete an item
   const handleDeleteItem = async (item: Item) => {
-    try {
-      await deleteItem({
-        variables: {id: item.id},
-        refetchQueries: [{query: GET_ITEMS}],
-      });
+    if (user?.id) {
+      try {
+        await deleteItem({
+          variables: {itemId: item.id, userId: user.id},
+          refetchQueries: [
+            {query: GET_ITEMS_BY_USER, variables: {userId: user.id}},
+          ],
+        });
 
-      setItems(items.filter((i) => i.id !== item.id));
-      setCategories(
-        categories.map((category) =>
-          category.title === item.type
-            ? {...category, count: category.count - 1}
-            : category
-        )
-      );
-      setSnackbarMessage("Item deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting item:", error);
-      setSnackbarMessage("Failed to delete item.");
+        setItems(items.filter((i) => i.id !== item.id));
+        setCategories(
+          categories.map((category) =>
+            category.title === item.type
+              ? {...category, count: category.count - 1}
+              : category
+          )
+        );
+        setSnackbarMessage("Item deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting item:", error);
+        setSnackbarMessage("Failed to delete item.");
+      }
+      setSnackbarOpen(true);
     }
-    setSnackbarOpen(true);
   };
 
   if (loading) return <p>Loading...</p>;

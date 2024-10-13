@@ -5,6 +5,7 @@ import api from "../utils/axiosConfig";
 interface UserState {
   isLoggedIn: boolean;
   userInfo: {
+    id: string;
     email: string;
     name: string;
   } | null;
@@ -24,6 +25,7 @@ const initialState: UserState = {
 interface RegisterResponse {
   token: string;
   user: {
+    id: string;
     name: string;
     email: string;
   };
@@ -32,6 +34,7 @@ interface RegisterResponse {
 interface LoginResponse {
   token: string;
   user: {
+    id: string;
     name: string;
     email: string;
   };
@@ -51,6 +54,7 @@ export const registerUser = createAsyncThunk(
             register(name: $name, email: $email, password: $password) {
               token
               user {
+                id
                 name
                 email
               }
@@ -66,7 +70,12 @@ export const registerUser = createAsyncThunk(
         return rejectWithValue(errorMessage);
       }
 
-      return response.data.data.register as RegisterResponse;
+      const registerData = response.data.data.register as RegisterResponse;
+
+      // Store the token in localStorage
+      localStorage.setItem("jwtToken", registerData.token);
+
+      return registerData;
     } catch (error: unknown) {
       if (error instanceof Error) {
         return rejectWithValue(`Registration failed: ${error.message}`);
@@ -99,6 +108,7 @@ export const loginUser = createAsyncThunk(
             login(email: $email, password: $password) {
               token
               user {
+                id
                 name
                 email
               }
@@ -113,7 +123,12 @@ export const loginUser = createAsyncThunk(
         return rejectWithValue(errorMessage);
       }
 
-      return response.data.data.login as LoginResponse;
+      const loginData = response.data.data.login as LoginResponse;
+
+      // Store the token in localStorage
+      localStorage.setItem("jwtToken", loginData.token);
+
+      return loginData;
     } catch (error: unknown) {
       if (error instanceof Error) {
         return rejectWithValue(`Login failed: ${error.message}`);
@@ -153,7 +168,11 @@ const userSlice = createSlice({
       (state, action: PayloadAction<RegisterResponse>) => {
         state.loading = false;
         state.isLoggedIn = true;
-        state.userInfo = action.payload.user;
+        state.userInfo = {
+          id: action.payload.user.id,
+          email: action.payload.user.email,
+          name: action.payload.user.name,
+        };
         state.token = action.payload.token;
       }
     );
@@ -172,7 +191,11 @@ const userSlice = createSlice({
       (state, action: PayloadAction<LoginResponse>) => {
         state.loading = false;
         state.isLoggedIn = true;
-        state.userInfo = action.payload.user;
+        state.userInfo = {
+          id: action.payload.user.id,
+          email: action.payload.user.email,
+          name: action.payload.user.name,
+        };
         state.token = action.payload.token;
       }
     );

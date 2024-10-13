@@ -1,12 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {useParams, useLocation, useNavigate} from "react-router-dom";
 import {useQuery, useMutation} from "@apollo/client";
-import {
-  GET_ITEM_BY_ID,
-  DELETE_ITEM,
-  UPDATE_ITEM,
-  GET_ITEMS,
-} from "../../graphql/queries";
+import {GET_ITEM_BY_ID, DELETE_ITEM, UPDATE_ITEM} from "../../graphql/queries";
 import {
   Container,
   Typography,
@@ -47,9 +42,7 @@ const DetailPage: React.FC = () => {
     variables: {id},
   });
 
-  const [deleteItem] = useMutation(DELETE_ITEM, {
-    refetchQueries: [{query: GET_ITEMS}],
-  });
+  const [deleteItem] = useMutation(DELETE_ITEM);
   const [updateItem] = useMutation(UPDATE_ITEM);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [newItem, setNewItem] = useState<Item>({
