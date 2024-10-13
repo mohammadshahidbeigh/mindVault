@@ -1,4 +1,4 @@
-// src/graphql/schema.tsss
+// src/graphql/schema.ts
 import {gql} from "apollo-server-express";
 import {IUser} from "../models/User";
 import User from "../models/User";
@@ -51,6 +51,7 @@ export const typeDefs = gql`
     items(type: String, searchTerm: String): [Item!]!
     item(id: ID!): Item
     category(id: ID!): Category
+    itemsByUser(userId: ID!): [Item!]!
   }
 
   type Mutation {
@@ -67,13 +68,14 @@ export const typeDefs = gql`
       user: ID!
     ): Item!
     updateItem(
-      id: ID!
-      title: String!
-      description: String!
-      type: String!
-      tags: [String!]!
+      itemId: ID!
+      userId: ID!
+      title: String
+      description: String
+      type: String
+      tags: [String!]
     ): Item!
-    deleteItem(id: ID!): DeleteResponse!
+    deleteItem(itemId: ID!, userId: ID!): Item!
 
     addCategory(title: String!, count: Int): Category!
     updateCategory(id: ID!, title: String!, count: Int): Category!
@@ -98,11 +100,12 @@ interface AddItemArgs {
 }
 
 interface UpdateItemArgs {
-  id: string;
-  title: string;
-  description: string;
-  type: string;
-  tags: string[];
+  itemId: string;
+  userId: string;
+  title?: string;
+  description?: string;
+  type?: string;
+  tags?: string[];
 }
 
 interface AddCategoryArgs {
@@ -182,6 +185,17 @@ export const resolvers: IResolvers = {
       } catch (err) {
         console.error("Error fetching category", err);
         throw new Error("Failed to fetch category");
+      }
+    },
+    itemsByUser: async (
+      _: unknown,
+      {userId}: {userId: string}
+    ): Promise<IItem[]> => {
+      try {
+        return await Item.find({user: userId}).populate("user");
+      } catch (err) {
+        console.error("Error fetching items by user", err);
+        throw new Error("Failed to fetch items by user");
       }
     },
   },
@@ -344,22 +358,28 @@ export const resolvers: IResolvers = {
         );
       }
 
-      const {id, title, description, type, tags} = args;
+      const {itemId, userId, title, description, type, tags} = args;
 
       try {
-        const item = await Item.findById(id);
+        const item = await Item.findById(itemId);
         if (!item) {
           throw new Error("Item not found");
         }
-        if (item.user?.toString() !== context.user.id) {
+        if (item.user?.toString() !== userId) {
           throw new ForbiddenError(
             "You don't have permission to update this item"
           );
         }
 
+        const updatedFields: Partial<IItem> = {};
+        if (title !== undefined) updatedFields.title = title;
+        if (description !== undefined) updatedFields.description = description;
+        if (type !== undefined) updatedFields.type = type;
+        if (tags !== undefined) updatedFields.tags = tags;
+
         const updatedItem = await Item.findByIdAndUpdate(
-          id,
-          {title, description, type, tags},
+          itemId,
+          updatedFields,
           {new: true}
         ).populate("user");
         return updatedItem;
@@ -371,9 +391,9 @@ export const resolvers: IResolvers = {
 
     deleteItem: async (
       _: unknown,
-      {id}: {id: string},
+      {itemId, userId}: {itemId: string; userId: string},
       context: Context
-    ): Promise<{message: string}> => {
+    ): Promise<IItem> => {
       if (!context.user) {
         throw new AuthenticationError(
           "You must be logged in to delete an item"
@@ -381,18 +401,21 @@ export const resolvers: IResolvers = {
       }
 
       try {
-        const item = await Item.findById(id);
+        const item = await Item.findById(itemId);
         if (!item) {
           throw new Error("Item not found");
         }
-        if (item.user?.toString() !== context.user.id) {
+        if (item.user?.toString() !== userId) {
           throw new ForbiddenError(
             "You don't have permission to delete this item"
           );
         }
 
-        await Item.findByIdAndDelete(id);
-        return {message: "Item deleted successfully"};
+        const deletedItem = await Item.findByIdAndDelete(itemId);
+        if (!deletedItem) {
+          throw new Error("Failed to delete item");
+        }
+        return deletedItem;
       } catch (err) {
         console.error("Error deleting item", err);
         throw new Error("Failed to delete item");
