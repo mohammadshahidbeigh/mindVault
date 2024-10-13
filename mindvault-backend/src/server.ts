@@ -4,6 +4,10 @@ import {ApolloServer} from "apollo-server-express";
 import {typeDefs, resolvers} from "./graphql/schema";
 import connectDB from "./db"; // Import the MongoDB connection
 import jwt from "jsonwebtoken"; // For token verification
+import dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
 
 const app: Application = express();
 
@@ -16,44 +20,48 @@ const server = new ApolloServer({
   resolvers,
   context: ({req}) => {
     try {
-      // Extract the operation name from the request body
       const operationName = req.body?.operationName;
-
-      // Allow public access for playground and introspection queries
-      const isPlaygroundRequest =
-        req.body?.query && req.body.query.includes("IntrospectionQuery");
-
       const publicOperations = ["register", "login"];
 
-      if (
-        isPlaygroundRequest ||
-        !operationName ||
-        publicOperations.includes(operationName)
-      ) {
+      if (publicOperations.includes(operationName)) {
+        console.log(`Public operation '${operationName}', no auth required.`);
         return {};
       }
 
-      // For other operations, apply authentication check
       const authHeader = req.headers.authorization;
+      console.log("Authorization header:", authHeader);
+
       if (authHeader) {
         const token = authHeader.split(" ")[1];
+        console.log("Token:", token);
+
+        // Check if the secret key is loaded correctly
+        console.log("JWT_SECRET_KEY:", process.env.JWT_SECRET_KEY);
+
+        const decoded = jwt.decode(token);
+        console.log("Decoded token:", decoded);
+
         try {
-          const payload = jwt.verify(token, "your_jwt_secret_key") as {
-            userId: string;
-          };
+          const payload = jwt.verify(
+            token,
+            process.env.JWT_SECRET_KEY || "myverysecretkey123456" // Use hardcoded secret temporarily
+          ) as {userId: string};
+
+          console.log("Authenticated user from token:", payload.userId);
           return {user: payload.userId};
         } catch (jwtError) {
           console.error("JWT verification failed:", jwtError);
           throw new Error("Invalid token");
         }
       } else {
-        // Suppress the warning or handle it differently
-        // console.warn("No authorization header provided");
-        return {user: null}; // Return an object with no user
+        console.warn("No authorization header provided.");
+        return {user: null};
       }
-    } catch (error) {
-      console.error("Authentication error:", error);
-      // Return an object with no user instead of throwing an error
+    } catch (error: unknown) {
+      console.error(
+        "Error in context authentication:",
+        (error as Error).message
+      );
       return {user: null};
     }
   },
@@ -65,9 +73,10 @@ async function startApolloServer() {
   server.applyMiddleware({app});
 
   // Start Express server
-  app.listen({port: 4000}, () => {
+  const port = process.env.PORT || 4000;
+  app.listen({port}, () => {
     console.log(
-      `🚀 Server ready at http://localhost:4000${server.graphqlPath}`
+      `🚀 Server ready at http://localhost:${port}${server.graphqlPath}`
     );
   });
 }

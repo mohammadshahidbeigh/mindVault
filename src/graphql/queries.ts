@@ -9,6 +9,11 @@ export const GET_ITEMS = gql`
       description
       type
       tags
+      user {
+        id
+        name
+        email
+      }
     }
   }
 `;
@@ -20,18 +25,19 @@ export const ADD_ITEM = gql`
     $description: String!
     $type: String!
     $tags: [String!]!
+    $userId: ID!
   ) {
     addItem(
       title: $title
       description: $description
       type: $type
       tags: $tags
+      user: $userId
     ) {
-      id
       title
       description
       type
-      tags
+      id
     }
   }
 `;
@@ -57,6 +63,11 @@ export const UPDATE_ITEM = gql`
       description
       type
       tags
+      user {
+        id
+        name
+        email
+      }
     }
   }
 `;
@@ -78,6 +89,11 @@ export const GET_ITEM_BY_ID = gql`
       description
       type
       tags
+      user {
+        id
+        name
+        email
+      }
     }
   }
 `;
