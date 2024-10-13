@@ -1,7 +1,8 @@
 // src/server.ts
 import express, {Application} from "express";
 import {ApolloServer} from "apollo-server-express";
-import {typeDefs, resolvers} from "./graphql/schema";
+import {typeDefs} from "./graphql/schema";
+import {resolvers} from "./graphql/resolvers";
 import connectDB from "./db"; // Import the MongoDB connection
 import jwt from "jsonwebtoken"; // For token verification
 import dotenv from "dotenv";

@@ -1,18 +1,19 @@
+import {IUser} from "../models/User";
+import User from "../models/User";
 import {IResolvers} from "@graphql-tools/utils";
-import User, {IUser} from "../models/User";
-import Category, {ICategory} from "../models/Category";
-import Item, {IItem} from "../models/Item";
-import {AuthenticationError, ForbiddenError} from "apollo-server-express";
-
-interface AddCategoryArgs {
-  title: string;
-  count?: number;
-}
-
-interface UpdateCategoryArgs {
-  id: string;
-  title?: string;
-  count?: number;
+import {ICategory} from "../models/Category";
+import Category from "../models/Category";
+import {IItem} from "../models/Item";
+import Item from "../models/Item";
+import {generateToken} from "../utils/auth";
+import {
+  AuthenticationError,
+  UserInputError,
+  ForbiddenError,
+} from "apollo-server-express";
+import bcrypt from "bcryptjs";
+interface Context {
+  user?: IUser;
 }
 
 interface AddItemArgs {
@@ -24,15 +25,34 @@ interface AddItemArgs {
 }
 
 interface UpdateItemArgs {
-  id: string;
+  itemId: string;
+  userId: string;
   title?: string;
   description?: string;
   type?: string;
   tags?: string[];
 }
 
-interface Context {
-  user?: IUser;
+interface AddCategoryArgs {
+  title: string;
+  count: number;
+}
+
+interface UpdateCategoryArgs {
+  id: string;
+  title: string;
+  count: number;
+}
+
+interface RegisterArgs {
+  name: string;
+  email: string;
+  password: string;
+}
+
+interface LoginArgs {
+  email: string;
+  password: string;
 }
 
 export const resolvers: IResolvers = {
@@ -40,8 +60,7 @@ export const resolvers: IResolvers = {
     hello: (): string => "Hello world!",
     users: async (): Promise<IUser[]> => {
       try {
-        const users = await User.find();
-        return users;
+        return await User.find();
       } catch (err) {
         console.error("Error fetching users", err);
         throw new Error("Failed to fetch users");
@@ -49,8 +68,7 @@ export const resolvers: IResolvers = {
     },
     user: async (_: unknown, {id}): Promise<IUser | null> => {
       try {
-        const user = await User.findById(id);
-        return user;
+        return await User.findById(id);
       } catch (err) {
         console.error("Error fetching user", err);
         throw new Error("Failed to fetch user");
@@ -58,134 +76,169 @@ export const resolvers: IResolvers = {
     },
     categories: async (): Promise<ICategory[]> => {
       try {
-        const categories = await Category.find();
-        return categories;
+        return await Category.find();
       } catch (err) {
         console.error("Error fetching categories", err);
         throw new Error("Failed to fetch categories");
       }
     },
-    category: async (_: unknown, {id}): Promise<ICategory | null> => {
-      try {
-        const category = await Category.findById(id);
-        return category;
-      } catch (err) {
-        console.error("Error fetching category", err);
-        throw new Error("Failed to fetch category");
-      }
-    },
     items: async (
       _: unknown,
-      __: unknown,
-      context: Context
+      {searchTerm}: {searchTerm?: string}
     ): Promise<IItem[]> => {
-      if (!context.user) {
-        throw new AuthenticationError("You must be logged in to fetch items");
-      }
       try {
-        const items = await Item.find({user: context.user.id});
-        return items;
+        const query = searchTerm
+          ? {title: {$regex: String(searchTerm), $options: "i"}}
+          : {};
+        return await Item.find(query).populate("user");
       } catch (err) {
         console.error("Error fetching items", err);
         throw new Error("Failed to fetch items");
       }
     },
-    item: async (
-      _: unknown,
-      {id}: {id: string},
-      context: Context
-    ): Promise<IItem | null> => {
-      if (!context.user) {
-        throw new AuthenticationError("You must be logged in to fetch an item");
-      }
+    item: async (_: unknown, {id}): Promise<IItem | null> => {
       try {
-        const item = await Item.findOne({_id: id, user: context.user.id});
-        if (!item) {
-          throw new Error(
-            "Item not found or you don't have permission to access it"
-          );
-        }
-        return item;
+        return await Item.findById(id).populate("user");
       } catch (err) {
         console.error("Error fetching item", err);
         throw new Error("Failed to fetch item");
       }
     },
-  },
-  Mutation: {
-    addUser: async (
-      _: unknown,
-      {name, email}: {name: string; email: string}
-    ): Promise<IUser> => {
+    category: async (_: unknown, {id}): Promise<ICategory | null> => {
       try {
-        const newUser = new User({name, email});
-        return await newUser.save();
+        return await Category.findById(id);
       } catch (err) {
-        console.error("Error adding user", err);
-        throw new Error("Failed to add user");
+        console.error("Error fetching category", err);
+        throw new Error("Failed to fetch category");
       }
     },
+    itemsByUser: async (
+      _: unknown,
+      {userId}: {userId: string}
+    ): Promise<IItem[]> => {
+      try {
+        return await Item.find({user: userId}).populate("user");
+      } catch (err) {
+        console.error("Error fetching items by user", err);
+        throw new Error("Failed to fetch items by user");
+      }
+    },
+  },
+  Mutation: {
+    register: async (
+      _: unknown,
+      args: RegisterArgs
+    ): Promise<{token: string; user: IUser}> => {
+      const {name, email, password} = args;
+
+      try {
+        // Check if the user already exists
+        const existingUser = await User.findOne({email});
+        if (existingUser) {
+          throw new UserInputError("User already exists");
+        }
+
+        // Hash the password before saving
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({name, email, password: hashedPassword});
+        const savedUser = await newUser.save();
+
+        // Generate authentication token
+        const token = generateToken(savedUser.id);
+        return {token, user: savedUser};
+      } catch (err) {
+        console.error("Error registering user", err);
+        throw new Error("Failed to register user");
+      }
+    },
+
+    login: async (
+      _: unknown,
+      {email, password}: LoginArgs
+    ): Promise<{token: string; user: IUser}> => {
+      try {
+        console.log("Attempting to log in user with email:", email);
+
+        const user = await User.findOne({email});
+        if (!user) {
+          console.error("User not found with email:", email);
+          throw new UserInputError("Invalid email or password");
+        }
+
+        console.log("User found:", user);
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+          console.error("Password is invalid for email:", email);
+          throw new UserInputError("Invalid email or password");
+        }
+
+        console.log("Password is valid for user:", user.email);
+
+        const token = generateToken(user.id);
+        return {token, user};
+      } catch (err) {
+        console.error("Error logging in user:", err);
+        if (err instanceof UserInputError) {
+          throw err;
+        }
+        throw new AuthenticationError("Failed to login");
+      }
+    },
+
     updateUser: async (
       _: unknown,
-      {id, name, email}
-    ): Promise<IUser | null> => {
+      args: {name?: string; email?: string},
+      context: Context
+    ): Promise<IUser> => {
+      if (!context.user) {
+        throw new AuthenticationError(
+          "You must be logged in to update your profile"
+        );
+      }
+
       try {
-        return await User.findByIdAndUpdate(id, {name, email}, {new: true});
+        const updatedUser = await User.findByIdAndUpdate(
+          context.user.id,
+          args,
+          {new: true}
+        );
+        if (!updatedUser) {
+          throw new Error("User not found");
+        }
+        return updatedUser;
       } catch (err) {
         console.error("Error updating user", err);
         throw new Error("Failed to update user");
       }
     },
-    deleteUser: async (_: unknown, {id}): Promise<{message: string}> => {
+
+    deleteUser: async (
+      _: unknown,
+      __: unknown,
+      context: Context
+    ): Promise<{message: string}> => {
+      if (!context.user) {
+        throw new AuthenticationError(
+          "You must be logged in to delete your account"
+        );
+      }
+
       try {
-        const result = await User.findByIdAndDelete(id);
-        if (!result) throw new Error("User not found");
+        const result = await User.findByIdAndDelete(context.user.id);
+        if (!result) {
+          throw new Error("User not found");
+        }
         return {message: "User deleted successfully"};
       } catch (err) {
         console.error("Error deleting user", err);
         throw new Error("Failed to delete user");
       }
     },
-    addCategory: async (
-      _: unknown,
-      {title, count}: AddCategoryArgs
-    ): Promise<ICategory> => {
-      try {
-        const newCategory = new Category({title, count: count || 0});
-        return await newCategory.save();
-      } catch (err) {
-        console.error("Error adding category", err);
-        throw new Error("Failed to add category");
-      }
-    },
-    updateCategory: async (
-      _: unknown,
-      {id, title, count}: UpdateCategoryArgs
-    ): Promise<ICategory | null> => {
-      try {
-        return await Category.findByIdAndUpdate(
-          id,
-          {title, count},
-          {new: true}
-        );
-      } catch (err) {
-        console.error("Error updating category", err);
-        throw new Error("Failed to update category");
-      }
-    },
-    deleteCategory: async (_: unknown, {id}): Promise<{message: string}> => {
-      try {
-        const result = await Category.findByIdAndDelete(id);
-        if (!result) throw new Error("Category not found");
-        return {message: "Category deleted successfully"};
-      } catch (err) {
-        console.error("Error deleting category", err);
-        throw new Error("Failed to delete category");
-      }
-    },
+
     addItem: async (
       _: unknown,
-      {title, description, type, tags}: AddItemArgs,
+      {title, description, type, tags, user}: AddItemArgs,
       context: Context
     ): Promise<IItem> => {
       if (!context.user) {
@@ -193,23 +246,35 @@ export const resolvers: IResolvers = {
       }
 
       try {
+        console.log("Adding item with details:", {
+          title,
+          description,
+          type,
+          tags,
+          user,
+        });
+
         const newItem = new Item({
           title,
           description,
           type,
           tags,
+          user, // Assuming userId is correct here
         });
 
         const savedItem = await newItem.save();
+        console.log("Saved item:", savedItem);
+
         return savedItem.populate("user");
       } catch (err) {
         console.error("Error adding item", err);
         throw new Error("Failed to add item");
       }
     },
+
     updateItem: async (
       _: unknown,
-      {id, title, description, type, tags}: UpdateItemArgs,
+      args: UpdateItemArgs,
       context: Context
     ): Promise<IItem | null> => {
       if (!context.user) {
@@ -217,46 +282,140 @@ export const resolvers: IResolvers = {
           "You must be logged in to update an item"
         );
       }
-      // Save and return the populated item
-      try {
-        const item = await Item.findByIdAndUpdate(
-          id,
-          {title, description, type, tags},
-          {new: true, runValidators: true}
-        );
 
+      const {itemId, userId, title, description, type, tags} = args;
+
+      try {
+        const item = await Item.findById(itemId);
         if (!item) {
           throw new Error("Item not found");
         }
+        if (item.user?.toString() !== userId) {
+          throw new ForbiddenError(
+            "You don't have permission to update this item"
+          );
+        }
 
-        return await item.populate("user");
+        const updatedFields: Partial<IItem> = {};
+        if (title !== undefined) updatedFields.title = title;
+        if (description !== undefined) updatedFields.description = description;
+        if (type !== undefined) updatedFields.type = type;
+        if (tags !== undefined) updatedFields.tags = tags;
+
+        const updatedItem = await Item.findByIdAndUpdate(
+          itemId,
+          updatedFields,
+          {new: true}
+        ).populate("user");
+        return updatedItem;
       } catch (err) {
         console.error("Error updating item", err);
         throw new Error("Failed to update item");
       }
     },
+
     deleteItem: async (
+      _: unknown,
+      {itemId, userId}: {itemId: string; userId: string},
+      context: Context
+    ): Promise<IItem> => {
+      if (!context.user) {
+        throw new AuthenticationError(
+          "You must be logged in to delete an item"
+        );
+      }
+
+      try {
+        const item = await Item.findById(itemId);
+        if (!item) {
+          throw new Error("Item not found");
+        }
+        if (item.user?.toString() !== userId) {
+          throw new ForbiddenError(
+            "You don't have permission to delete this item"
+          );
+        }
+
+        const deletedItem = await Item.findByIdAndDelete(itemId);
+        if (!deletedItem) {
+          throw new Error("Failed to delete item");
+        }
+        return deletedItem;
+      } catch (err) {
+        console.error("Error deleting item", err);
+        throw new Error("Failed to delete item");
+      }
+    },
+
+    addCategory: async (
+      _: unknown,
+      args: AddCategoryArgs,
+      context: Context
+    ): Promise<ICategory> => {
+      if (!context.user) {
+        throw new AuthenticationError(
+          "You must be logged in to add a category"
+        );
+      }
+
+      const {title, count} = args;
+
+      try {
+        const newCategory = new Category({title, count});
+        const savedCategory = await newCategory.save();
+        return savedCategory;
+      } catch (err) {
+        console.error("Error adding category", err);
+        throw new Error("Failed to add category");
+      }
+    },
+
+    updateCategory: async (
+      _: unknown,
+      args: UpdateCategoryArgs,
+      context: Context
+    ): Promise<ICategory | null> => {
+      if (!context.user) {
+        throw new AuthenticationError(
+          "You must be logged in to update a category"
+        );
+      }
+
+      const {id, title, count} = args;
+
+      try {
+        const category = await Category.findByIdAndUpdate(
+          id,
+          {title, count},
+          {new: true}
+        );
+        return category;
+      } catch (err) {
+        console.error("Error updating category", err);
+        throw new Error("Failed to update category");
+      }
+    },
+
+    deleteCategory: async (
       _: unknown,
       {id}: {id: string},
       context: Context
     ): Promise<{message: string}> => {
       if (!context.user) {
         throw new AuthenticationError(
-          "You must be logged in to delete an item"
+          "You must be logged in to delete a category"
         );
       }
+
       try {
-        const item = await Item.findOne({_id: id, user: context.user.id});
-        if (!item) {
-          throw new ForbiddenError(
-            "Item not found or you don't have permission to delete it"
-          );
+        const result = await Category.findByIdAndDelete(id);
+        if (!result) {
+          throw new Error("Category not found");
         }
-        await Item.findByIdAndDelete(id);
-        return {message: "Item deleted successfully"};
+        return {message: "Category deleted successfully"};
       } catch (err) {
-        console.error("Error deleting item", err);
-        throw new Error("Failed to delete item");
+        console.error("Error deleting category", err);
+        throw new Error("Failed to delete category");
       }
     },
   },
