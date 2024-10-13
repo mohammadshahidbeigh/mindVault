@@ -11,24 +11,28 @@ import ArticlePage from "./views/pages/ArticlePage";
 import ResearchPaperPage from "./views/pages/ResearchPaperPage";
 import BookPage from "./views/pages/BookPage";
 import DetailPage from "./views/pages/DetailPage";
+import CircularProgress from "@mui/material/CircularProgress";
+import {Suspense} from "react";
 
 const App: React.FC = () => {
   return (
     <Router>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route element={<PrivateRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/articles" element={<ArticlePage />} />
-          <Route path="/research-papers" element={<ResearchPaperPage />} />
-          <Route path="/books" element={<BookPage />} />
-          <Route path="/detail/:id" element={<DetailPage />} />
-        </Route>
-      </Routes>
+      <Suspense fallback={<CircularProgress />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route element={<PrivateRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/articles" element={<ArticlePage />} />
+            <Route path="/research-papers" element={<ResearchPaperPage />} />
+            <Route path="/books" element={<BookPage />} />
+            <Route path="/detail/:id" element={<DetailPage />} />
+          </Route>
+        </Routes>
+      </Suspense>
     </Router>
   );
 };

@@ -31,6 +31,7 @@ import SyntaxHighlighter from "react-syntax-highlighter";
 import {docco} from "react-syntax-highlighter/dist/esm/styles/hljs";
 import {useSelector} from "react-redux";
 import {RootState} from "../../store";
+import ReactPlayer from "react-player";
 
 const DetailPage: React.FC = () => {
   const {id} = useParams<{id: string}>();
@@ -71,7 +72,10 @@ const DetailPage: React.FC = () => {
   }, [location.search]);
 
   if (loading) return <CircularProgress />;
-  if (error) return <p>Error: {error.message}</p>;
+  if (error) {
+    console.error("Failed to load resource:", error.message);
+    return <p>Error: {error.message}</p>;
+  }
 
   const item = data?.item;
 
@@ -101,10 +105,10 @@ const DetailPage: React.FC = () => {
         navigate(-1);
       }, 1000);
     } catch (error: unknown) {
+      console.error("Failed to load resource:", error);
       setSnackbarMessage("Failed to delete item. Please try again.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
-      console.error("Delete error:", error);
     }
   };
 
@@ -141,7 +145,7 @@ const DetailPage: React.FC = () => {
       refetch();
       handleDialogClose();
     } catch (error) {
-      console.error("Update error:", error);
+      console.error("Failed to load resource:", error);
       setSnackbarMessage("Failed to update item. Please try again.");
       setSnackbarSeverity("error");
     } finally {
@@ -177,6 +181,24 @@ const DetailPage: React.FC = () => {
     );
   };
 
+  const renderMedia = (description: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const urls = description.match(urlRegex);
+    if (urls) {
+      return urls.map((url, index) => (
+        <Box key={index} sx={{mt: 2}}>
+          <ReactPlayer
+            url={url}
+            controls
+            width="100%"
+            onError={(e) => console.error("Failed to load media:", e)}
+          />
+        </Box>
+      ));
+    }
+    return null;
+  };
+
   return (
     <Box sx={{flexGrow: 1, mt: 8, ml: {sm: 30}}}>
       <Container maxWidth="lg">
@@ -197,6 +219,7 @@ const DetailPage: React.FC = () => {
                 {item.author}
               </Typography>
               {renderDescription(item.description)}
+              {renderMedia(item.description)}
               <Box sx={{mt: 2}}>
                 {item.tags.map((tag: string, index: number) => (
                   <Chip

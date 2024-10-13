@@ -28,7 +28,7 @@ export const auth = (req: AuthRequest, res: Response, next: NextFunction) => {
       // Verify token
       const payload = jwt.verify(
         token,
-        process.env.JWT_SECRET_KEY || "myverysecretkey123456"
+        process.env.JWT_SECRET_KEY as string
       ) as {userId: string};
       req.user = payload.userId; // Set user ID
       console.log("User authenticated. UserId:", req.user);

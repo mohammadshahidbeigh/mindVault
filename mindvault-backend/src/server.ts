@@ -45,7 +45,7 @@ const server = new ApolloServer({
         try {
           const payload = jwt.verify(
             token,
-            process.env.JWT_SECRET_KEY || "myverysecretkey123456" // Use hardcoded secret temporarily
+            process.env.JWT_SECRET_KEY as string
           ) as {userId: string};
 
           console.log("Authenticated user from token:", payload.userId);

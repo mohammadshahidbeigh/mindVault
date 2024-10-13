@@ -10,6 +10,11 @@ import {
   Grid,
   Snackbar,
   Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -17,6 +22,7 @@ import {
   Article as ArticleIcon,
   LibraryBooks as LibraryBooksIcon,
   School as SchoolIcon,
+  Clear as ClearIcon,
 } from "@mui/icons-material";
 import CategoryCard from "../components/CategoryCard";
 import ItemCard from "../components/ItemCard";
@@ -94,18 +100,25 @@ const Dashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<Item | null>(null);
 
-  // Filter items based on search term
+  // Filter items based on search term using a more efficient method
   useEffect(() => {
-    const filtered = items.filter(
-      (item) =>
-        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.tags.some((tag) =>
-          tag.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-    );
+    const lowercasedSearchTerm = searchTerm.toLowerCase();
+    const filtered = items.filter((item) => {
+      const lowercasedTitle = item.title.toLowerCase();
+      const lowercasedDescription = item.description.toLowerCase();
+      const lowercasedType = item.type.toLowerCase();
+      const lowercasedTags = item.tags.map((tag) => tag.toLowerCase());
+
+      return (
+        lowercasedTitle.includes(lowercasedSearchTerm) ||
+        lowercasedDescription.includes(lowercasedSearchTerm) ||
+        lowercasedType.includes(lowercasedSearchTerm) ||
+        lowercasedTags.some((tag) => tag.includes(lowercasedSearchTerm))
+      );
+    });
     setFilteredItems(filtered);
   }, [searchTerm, items]);
 
@@ -211,21 +224,33 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // Open confirm delete dialog
+  const handleOpenConfirmDelete = (item: Item) => {
+    setItemToDelete(item);
+    setConfirmDeleteOpen(true);
+  };
+
+  // Close confirm delete dialog
+  const handleConfirmDeleteClose = () => {
+    setConfirmDeleteOpen(false);
+    setItemToDelete(null);
+  };
+
   // Delete an item
-  const handleDeleteItem = async (item: Item) => {
-    if (user?.id) {
+  const handleDeleteItem = async () => {
+    if (user?.id && itemToDelete) {
       try {
         await deleteItem({
-          variables: {itemId: item.id, userId: user.id},
+          variables: {itemId: itemToDelete.id, userId: user.id},
           refetchQueries: [
             {query: GET_ITEMS_BY_USER, variables: {userId: user.id}},
           ],
         });
 
-        setItems(items.filter((i) => i.id !== item.id));
+        setItems(items.filter((i) => i.id !== itemToDelete.id));
         setCategories(
           categories.map((category) =>
-            category.title === item.type
+            category.title === itemToDelete.type
               ? {...category, count: category.count - 1}
               : category
           )
@@ -236,6 +261,7 @@ const Dashboard: React.FC = () => {
         setSnackbarMessage("Failed to delete item.");
       }
       setSnackbarOpen(true);
+      handleConfirmDeleteClose();
     }
   };
 
@@ -269,25 +295,49 @@ const Dashboard: React.FC = () => {
         </Typography>
         <Box sx={{display: "flex", alignItems: "center"}}>
           <TextField
-            placeholder="Search..."
+            placeholder="Search for items..."
             variant="outlined"
             size="small"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             InputProps={{
-              startAdornment: <SearchIcon />,
+              startAdornment: (
+                <IconButton size="small" disabled>
+                  <SearchIcon />
+                </IconButton>
+              ),
+              endAdornment: searchTerm && (
+                <IconButton size="small" onClick={() => setSearchTerm("")}>
+                  <ClearIcon />
+                </IconButton>
+              ),
             }}
-            sx={{mr: 2}}
+            sx={{
+              mr: 2,
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "primary.main",
+                },
+                "&:hover fieldset": {
+                  borderColor: "primary.dark",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "primary.light",
+                },
+              },
+            }}
           />
           <Tooltip title="Add new item" arrow>
-            <IconButton
-              color="primary"
-              aria-label="add new item"
-              size="large"
-              onClick={() => handleOpenDialog()}
-            >
-              <AddIcon />
-            </IconButton>
+            <Tooltip title="Add new item" arrow>
+              <IconButton
+                color="primary"
+                aria-label="add new item"
+                size="large"
+                onClick={() => handleOpenDialog()}
+              >
+                <AddIcon />
+              </IconButton>
+            </Tooltip>
           </Tooltip>
         </Box>
       </Box>
@@ -311,7 +361,7 @@ const Dashboard: React.FC = () => {
               item={item}
               index={index}
               onEdit={() => handleOpenDialog(item)}
-              onDelete={() => handleDeleteItem(item)}
+              onDelete={() => handleOpenConfirmDelete(item)}
             />
           </Grid>
         ))}
@@ -326,6 +376,23 @@ const Dashboard: React.FC = () => {
         onSubmit={handleAddOrUpdateItem}
         errors={errors}
       />
+
+      <Dialog open={confirmDeleteOpen} onClose={handleConfirmDeleteClose}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this item?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleConfirmDeleteClose}>Cancel</Button>
+          <Button
+            onClick={handleDeleteItem}
+            color="primary"
+            variant="contained"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar
         open={snackbarOpen}

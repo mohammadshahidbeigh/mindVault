@@ -19,7 +19,6 @@ import "./index.css";
 // Create an Apollo Link to set the authorization header
 const authLink = new ApolloLink((operation, forward) => {
   const token = localStorage.getItem("jwtToken"); // Assuming the token is stored in localStorage
-  console.log("Retrieved token:", token); // Debugging log
   operation.setContext({
     headers: {
       authorization: token ? `Bearer ${token}` : "",
