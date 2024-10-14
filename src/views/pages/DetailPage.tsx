@@ -71,7 +71,20 @@ const DetailPage: React.FC = () => {
     setType(searchParams.get("type"));
   }, [location.search]);
 
-  if (loading) return <CircularProgress />;
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
   if (error) {
     console.error("Failed to load resource:", error.message);
     return <p>Error: {error.message}</p>;

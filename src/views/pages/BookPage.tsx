@@ -1,5 +1,12 @@
 import React, {useEffect, useState} from "react";
-import {Container, Typography, Grid, Box, Fade} from "@mui/material";
+import {
+  Container,
+  Typography,
+  Grid,
+  Box,
+  Fade,
+  CircularProgress,
+} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import {useQuery} from "@apollo/client";
 import {GET_ITEMS_BY_USER} from "../../graphql/queries";
@@ -9,7 +16,7 @@ import {RootState} from "../../store";
 const BookPage: React.FC = () => {
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.user.userInfo);
-  const {data} = useQuery(GET_ITEMS_BY_USER, {
+  const {data, loading} = useQuery(GET_ITEMS_BY_USER, {
     variables: {userId: user?.id},
     skip: !user?.id,
   });
@@ -49,6 +56,21 @@ const BookPage: React.FC = () => {
     }
     return description;
   };
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{flexGrow: 1, mt: 4, ml: {sm: 30}}}>
