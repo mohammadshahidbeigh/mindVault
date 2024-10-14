@@ -366,7 +366,7 @@ const Dashboard: React.FC = () => {
               aria-label="add new item"
               size="large"
               onClick={() => handleOpenDialog()}
-              sx={{ml: 1, mb: 1}}
+              sx={{ml: 1}}
             >
               <AddIcon />
             </IconButton>
