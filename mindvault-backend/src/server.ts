@@ -1,16 +1,35 @@
 // src/server.ts
 import express, {Application} from "express";
+import morgan from "morgan"; // Import morgan for logging
 import {ApolloServer} from "apollo-server-express";
 import {typeDefs} from "./graphql/schema";
 import {resolvers} from "./graphql/resolvers";
 import connectDB from "./db"; // Import the MongoDB connection
 import jwt from "jsonwebtoken"; // For token verification
 import dotenv from "dotenv";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import depthLimit from "graphql-depth-limit";
 
 // Load environment variables
 dotenv.config();
 
 const app: Application = express();
+
+// Use morgan for logging requests
+app.use(morgan("combined")); // You can change the format as needed
+
+// Adds security headers
+app.use(helmet());
+
+// Rate limiting
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: "Too many requests, please try again later.",
+});
+
+app.use("/graphql", apiLimiter);
 
 // Connect to MongoDB
 connectDB();
@@ -19,28 +38,35 @@ connectDB();
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  validationRules: [depthLimit(5)], // Restrict query depth to 5 levels
   context: ({req}) => {
     try {
       const operationName = req.body?.operationName;
       const publicOperations = ["register", "login"];
 
       if (publicOperations.includes(operationName)) {
-        console.log(`Public operation '${operationName}', no auth required.`);
+        if (process.env.NODE_ENV !== "production") {
+          console.log(`Public operation '${operationName}', no auth required.`);
+        }
         return {};
       }
 
       const authHeader = req.headers.authorization;
-      console.log("Authorization header:", authHeader);
+      if (process.env.NODE_ENV !== "production") {
+        console.log("Authorization header:", authHeader);
+      }
 
       if (authHeader) {
         const token = authHeader.split(" ")[1];
-        console.log("Token:", token);
-
-        // Check if the secret key is loaded correctly
-        console.log("JWT_SECRET_KEY:", process.env.JWT_SECRET_KEY);
+        if (process.env.NODE_ENV !== "production") {
+          console.log("Token:", token);
+          console.log("JWT_SECRET_KEY:", process.env.JWT_SECRET_KEY);
+        }
 
         const decoded = jwt.decode(token);
-        console.log("Decoded token:", decoded);
+        if (process.env.NODE_ENV !== "production") {
+          console.log("Decoded token:", decoded);
+        }
 
         try {
           const payload = jwt.verify(
@@ -48,14 +74,18 @@ const server = new ApolloServer({
             process.env.JWT_SECRET_KEY as string
           ) as {userId: string};
 
-          console.log("Authenticated user from token:", payload.userId);
+          if (process.env.NODE_ENV !== "production") {
+            console.log("Authenticated user from token:", payload.userId);
+          }
           return {user: payload.userId};
         } catch (jwtError) {
           console.error("JWT verification failed:", jwtError);
           throw new Error("Invalid token");
         }
       } else {
-        console.warn("No authorization header provided.");
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("No authorization header provided.");
+        }
         return {user: null};
       }
     } catch (error: unknown) {

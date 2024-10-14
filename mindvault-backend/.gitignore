@@ -1,0 +1,5 @@
+# Build output directories
+dist/
+dist-ssr/
+.env
+

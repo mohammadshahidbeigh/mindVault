@@ -12,6 +12,8 @@ import {
   ForbiddenError,
 } from "apollo-server-express";
 import bcrypt from "bcryptjs";
+import Joi from "joi"; // Import Joi for validation
+
 interface Context {
   user?: IUser;
 }
@@ -54,6 +56,46 @@ interface LoginArgs {
   email: string;
   password: string;
 }
+
+// Validation schemas
+const registerSchema = Joi.object({
+  name: Joi.string().required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().min(6).required(),
+});
+
+const loginSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
+});
+
+const addItemSchema = Joi.object({
+  title: Joi.string().required(),
+  description: Joi.string().required(),
+  type: Joi.string().required(),
+  tags: Joi.array().items(Joi.string()).required(),
+  user: Joi.string().required(),
+});
+
+const updateItemSchema = Joi.object({
+  itemId: Joi.string().required(),
+  userId: Joi.string().required(),
+  title: Joi.string().optional(),
+  description: Joi.string().optional(),
+  type: Joi.string().optional(),
+  tags: Joi.array().items(Joi.string()).optional(),
+});
+
+const addCategorySchema = Joi.object({
+  title: Joi.string().required(),
+  count: Joi.number().integer().min(0).required(),
+});
+
+const updateCategorySchema = Joi.object({
+  id: Joi.string().required(),
+  title: Joi.string().required(),
+  count: Joi.number().integer().min(0).required(),
+});
 
 export const resolvers: IResolvers = {
   Query: {
@@ -129,6 +171,11 @@ export const resolvers: IResolvers = {
       _: unknown,
       args: RegisterArgs
     ): Promise<{token: string; user: IUser}> => {
+      const {error} = registerSchema.validate(args);
+      if (error) {
+        throw new UserInputError(error.details[0].message);
+      }
+
       const {name, email, password} = args;
 
       try {
@@ -156,6 +203,11 @@ export const resolvers: IResolvers = {
       _: unknown,
       {email, password}: LoginArgs
     ): Promise<{token: string; user: IUser}> => {
+      const {error} = loginSchema.validate({email, password});
+      if (error) {
+        throw new UserInputError(error.details[0].message);
+      }
+
       try {
         console.log("Attempting to log in user with email:", email);
 
@@ -238,28 +290,24 @@ export const resolvers: IResolvers = {
 
     addItem: async (
       _: unknown,
-      {title, description, type, tags, user}: AddItemArgs,
+      args: AddItemArgs,
       context: Context
     ): Promise<IItem> => {
       if (!context.user) {
         throw new AuthenticationError("You must be logged in to add an item");
       }
 
+      const {error} = addItemSchema.validate(args);
+      if (error) {
+        throw new UserInputError(error.details[0].message);
+      }
+
       try {
-        console.log("Adding item with details:", {
-          title,
-          description,
-          type,
-          tags,
-          user,
-        });
+        console.log("Adding item with details:", args);
 
         const newItem = new Item({
-          title,
-          description,
-          type,
-          tags,
-          user, // Assuming userId is correct here
+          ...args,
+          user: context.user.id, // Use context user ID
         });
 
         const savedItem = await newItem.save();
@@ -281,6 +329,11 @@ export const resolvers: IResolvers = {
         throw new AuthenticationError(
           "You must be logged in to update an item"
         );
+      }
+
+      const {error} = updateItemSchema.validate(args);
+      if (error) {
+        throw new UserInputError(error.details[0].message);
       }
 
       const {itemId, userId, title, description, type, tags} = args;
@@ -358,10 +411,13 @@ export const resolvers: IResolvers = {
         );
       }
 
-      const {title, count} = args;
+      const {error} = addCategorySchema.validate(args);
+      if (error) {
+        throw new UserInputError(error.details[0].message);
+      }
 
       try {
-        const newCategory = new Category({title, count});
+        const newCategory = new Category(args);
         const savedCategory = await newCategory.save();
         return savedCategory;
       } catch (err) {
@@ -379,6 +435,11 @@ export const resolvers: IResolvers = {
         throw new AuthenticationError(
           "You must be logged in to update a category"
         );
+      }
+
+      const {error} = updateCategorySchema.validate(args);
+      if (error) {
+        throw new UserInputError(error.details[0].message);
       }
 
       const {id, title, count} = args;
