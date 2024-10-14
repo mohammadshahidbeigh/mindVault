@@ -7,6 +7,7 @@ import {
   Box,
   IconButton,
   Fade,
+  useTheme,
 } from "@mui/material";
 import {Edit as EditIcon, Delete as DeleteIcon} from "@mui/icons-material";
 import {useNavigate} from "react-router-dom";
@@ -29,6 +30,8 @@ interface Props {
 
 const ItemCard: React.FC<Props> = ({item, index, onEdit, onDelete}) => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
 
   const handleCardClick = () => {
     navigate(`/detail/${item.id}?type=${item.type}`);
@@ -47,7 +50,9 @@ const ItemCard: React.FC<Props> = ({item, index, onEdit, onDelete}) => {
       <Card
         elevation={2}
         sx={{
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          backgroundColor: isDarkMode
+            ? "rgba(0, 0, 0, 0.8)"
+            : "rgba(255, 255, 255, 0.8)",
           transition: "transform 0.3s ease-in-out",
           "&:hover": {transform: "scale(1.05)"},
         }}
@@ -67,7 +72,7 @@ const ItemCard: React.FC<Props> = ({item, index, onEdit, onDelete}) => {
                 variant="caption"
                 sx={{
                   mr: 1,
-                  backgroundColor: "primary.main",
+                  backgroundColor: isDarkMode ? "primary.dark" : "primary.main",
                   color: "white",
                   padding: "2px 6px",
                   borderRadius: "4px",

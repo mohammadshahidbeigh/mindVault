@@ -12,6 +12,7 @@ import {
   MenuItem,
   InputLabel,
   Grid,
+  useTheme,
 } from "@mui/material";
 import {Item} from "../../utils/validateInputs"; // Removed unused 'validateInputs'
 import xss from "xss"; // Import xss for sanitization
@@ -35,13 +36,22 @@ const ItemDialog: React.FC<Props> = ({
   onSubmit,
   errors,
 }) => {
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
+
   return (
     <Dialog
       open={open}
       onClose={onClose}
       maxWidth="lg"
       fullWidth
-      PaperProps={{style: {height: "90vh"}}}
+      PaperProps={{
+        style: {
+          height: "90vh",
+          backgroundColor: isDarkMode ? "#333" : "#fff",
+          color: isDarkMode ? "#fff" : "#000",
+        },
+      }}
     >
       <DialogTitle>{editingItem ? "Edit Item" : "Add New Item"}</DialogTitle>
       <DialogContent>
@@ -57,6 +67,12 @@ const ItemDialog: React.FC<Props> = ({
               onChange={(e) => setNewItem({...newItem, title: e.target.value})}
               error={!!errors.title}
               helperText={errors.title}
+              InputLabelProps={{
+                style: {color: isDarkMode ? "#fff" : "#000"},
+              }}
+              InputProps={{
+                style: {color: isDarkMode ? "#fff" : "#000"},
+              }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -73,11 +89,19 @@ const ItemDialog: React.FC<Props> = ({
               }
               error={!!errors.description}
               helperText={errors.description}
+              InputLabelProps={{
+                style: {color: isDarkMode ? "#fff" : "#000"},
+              }}
+              InputProps={{
+                style: {color: isDarkMode ? "#fff" : "#000"},
+              }}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth margin="dense">
-              <InputLabel>Type</InputLabel>
+              <InputLabel style={{color: isDarkMode ? "#fff" : "#000"}}>
+                Type
+              </InputLabel>
               <Select
                 value={newItem.type}
                 onChange={(e) =>
@@ -89,6 +113,7 @@ const ItemDialog: React.FC<Props> = ({
                       | "Books",
                   })
                 }
+                style={{color: isDarkMode ? "#fff" : "#000"}}
               >
                 <MenuItem value="Articles">Articles</MenuItem>
                 <MenuItem value="Research Papers">Research Papers</MenuItem>
@@ -113,12 +138,20 @@ const ItemDialog: React.FC<Props> = ({
               }
               error={!!errors.tags}
               helperText={errors.tags}
+              InputLabelProps={{
+                style: {color: isDarkMode ? "#fff" : "#000"},
+              }}
+              InputProps={{
+                style: {color: isDarkMode ? "#fff" : "#000"},
+              }}
             />
           </Grid>
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose} style={{color: isDarkMode ? "#fff" : "#000"}}>
+          Cancel
+        </Button>
         <Button onClick={onSubmit} variant="contained" color="primary">
           {editingItem ? "Update" : "Add"}
         </Button>

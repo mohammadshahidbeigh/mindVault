@@ -12,6 +12,8 @@ import {
   IconButton,
   Grid,
   Fade,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {useDispatch} from "react-redux";
 import {useNavigate, Link} from "react-router-dom";
@@ -35,6 +37,9 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const {enqueueSnackbar} = useSnackbar();
   const [showPassword, setShowPassword] = useState(false);
+  const theme = useTheme();
+  const isMediumScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleLogin = (values: {email: string; password: string}) => {
     const sanitizedValues = {
@@ -63,22 +68,23 @@ const Login: React.FC = () => {
         justifyContent: "center",
         alignItems: "center",
         minHeight: "100vh",
-        marginLeft: "240px",
+        marginLeft: {xs: 0, sm: "240px"},
+        width: {xs: "100%", sm: "calc(100% - 240px)"},
       }}
     >
       <Container
         component="main"
         maxWidth="xs"
         sx={{
-          width: "60%",
-          maxWidth: "320px",
+          width: {xs: "90%", sm: "80%", md: "60%"},
+          maxWidth: {xs: "100%", sm: "320px"},
         }}
       >
         <Fade in={true} timeout={1000}>
           <Paper
             elevation={6}
             sx={{
-              p: 4,
+              p: {xs: 2, sm: 3, md: 4},
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -88,13 +94,18 @@ const Login: React.FC = () => {
             }}
           >
             <Avatar
-              sx={{m: 1, bgcolor: "secondary.main", width: 56, height: 56}}
+              sx={{
+                m: 1,
+                bgcolor: "secondary.main",
+                width: {xs: 48, sm: 56},
+                height: {xs: 48, sm: 56},
+              }}
             >
-              <LockOutlinedIcon fontSize="large" />
+              <LockOutlinedIcon fontSize={isSmallScreen ? "medium" : "large"} />
             </Avatar>
             <Typography
               component="h1"
-              variant="h4"
+              variant={isSmallScreen ? "h5" : "h4"}
               gutterBottom
               fontWeight="bold"
               color="primary"
@@ -151,8 +162,13 @@ const Login: React.FC = () => {
                     color="primary"
                     type="submit"
                     fullWidth
-                    size="large"
-                    sx={{mt: 3, mb: 2, borderRadius: "25px", py: 1.5}}
+                    size={isSmallScreen ? "medium" : "large"}
+                    sx={{
+                      mt: 3,
+                      mb: 2,
+                      borderRadius: "25px",
+                      py: {xs: 1, sm: 1.5},
+                    }}
                   >
                     Login
                   </Button>
@@ -161,6 +177,7 @@ const Login: React.FC = () => {
                     justifyContent="space-between"
                     alignItems="center"
                     spacing={2}
+                    direction={isMediumScreen ? "column" : "row"}
                   >
                     <Grid item xs={12} sm={6}>
                       <Link
@@ -170,13 +187,18 @@ const Login: React.FC = () => {
                           color: "primary.main",
                           pointerEvents: "none",
                           opacity: 0.5,
+                          fontSize: isSmallScreen ? "0.875rem" : "1rem",
                         }}
                       >
                         Forgot password?
                       </Link>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <Typography variant="body2" align="right">
+                      <Typography
+                        variant="body2"
+                        align={isMediumScreen ? "center" : "right"}
+                        sx={{fontSize: isSmallScreen ? "0.875rem" : "1rem"}}
+                      >
                         Don't have an account?{" "}
                         <Link
                           to="/signup"

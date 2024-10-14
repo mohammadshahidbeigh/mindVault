@@ -1,5 +1,5 @@
 // src/components/Navbar.tsx
-import React from "react";
+import React, {useState} from "react";
 import {
   Drawer,
   List,
@@ -9,6 +9,9 @@ import {
   Typography,
   Box,
   Divider,
+  IconButton,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {useDispatch, useSelector} from "react-redux";
 import {logout} from "../../store/userSlice";
@@ -20,6 +23,7 @@ import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import PersonIcon from "@mui/icons-material/Person";
+import MenuIcon from "@mui/icons-material/Menu";
 import {useSnackbar} from "notistack";
 
 const Navbar: React.FC = () => {
@@ -27,6 +31,13 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const {enqueueSnackbar} = useSnackbar();
   const isLoggedIn = useSelector((state: RootState) => state.user?.isLoggedIn);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
 
   const handleLogout = () => {
     dispatch(logout());
@@ -38,25 +49,13 @@ const Navbar: React.FC = () => {
         horizontal: "right",
       },
     });
+    if (isMobile) {
+      setMobileOpen(false);
+    }
   };
 
-  return (
-    <Drawer
-      variant="permanent"
-      anchor="left"
-      sx={{
-        width: 240,
-        flexShrink: 0,
-        "& .MuiDrawer-paper": {
-          width: 240,
-          boxSizing: "border-box",
-          backgroundColor: "#2563eb",
-          color: "white",
-          display: "flex",
-          flexDirection: "column",
-        },
-      }}
-    >
+  const drawerContent = (
+    <>
       <Box sx={{p: 2, flexShrink: 0, display: "flex", alignItems: "center"}}>
         <img
           src="https://static.cdnlogo.com/logos/s/71/supergiant.svg"
@@ -87,6 +86,7 @@ const Navbar: React.FC = () => {
             borderRadius: "8px",
             m: 1,
           }}
+          onClick={isMobile ? handleDrawerToggle : undefined}
         >
           <ListItemIcon>
             <HomeIcon sx={{color: "white"}} />
@@ -107,6 +107,7 @@ const Navbar: React.FC = () => {
                 borderRadius: "8px",
                 m: 1,
               }}
+              onClick={isMobile ? handleDrawerToggle : undefined}
             >
               <ListItemIcon>
                 <PersonIcon sx={{color: "white"}} />
@@ -125,6 +126,7 @@ const Navbar: React.FC = () => {
                 borderRadius: "8px",
                 m: 1,
               }}
+              onClick={isMobile ? handleDrawerToggle : undefined}
             >
               <ListItemIcon>
                 <DashboardIcon sx={{color: "white"}} />
@@ -146,6 +148,7 @@ const Navbar: React.FC = () => {
                 borderRadius: "8px",
                 m: 1,
               }}
+              onClick={isMobile ? handleDrawerToggle : undefined}
             >
               <ListItemIcon>
                 <LoginIcon sx={{color: "white"}} />
@@ -164,6 +167,7 @@ const Navbar: React.FC = () => {
                 borderRadius: "8px",
                 m: 1,
               }}
+              onClick={isMobile ? handleDrawerToggle : undefined}
             >
               <ListItemIcon>
                 <PersonAddIcon sx={{color: "white"}} />
@@ -194,7 +198,46 @@ const Navbar: React.FC = () => {
           </ListItem>
         </List>
       )}
-    </Drawer>
+    </>
+  );
+
+  return (
+    <>
+      {isMobile && (
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          edge="start"
+          onClick={handleDrawerToggle}
+          sx={{mr: 2, position: "fixed", top: 10, left: 10, zIndex: 1100}}
+        >
+          <MenuIcon />
+        </IconButton>
+      )}
+      <Drawer
+        variant={isMobile ? "temporary" : "permanent"}
+        open={isMobile ? mobileOpen : true}
+        onClose={isMobile ? handleDrawerToggle : undefined}
+        ModalProps={{
+          keepMounted: true, // Better open performance on mobile.
+        }}
+        anchor="left"
+        sx={{
+          width: 240,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: 240,
+            boxSizing: "border-box",
+            backgroundColor: "#2563eb",
+            color: "white",
+            display: "flex",
+            flexDirection: "column",
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+    </>
   );
 };
 

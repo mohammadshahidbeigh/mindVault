@@ -19,6 +19,7 @@ import {
   Button,
   Snackbar,
   Alert,
+  useTheme,
 } from "@mui/material";
 import {
   Edit as EditIcon,
@@ -38,6 +39,8 @@ const DetailPage: React.FC = () => {
   const {id} = useParams<{id: string}>();
   const location = useLocation();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
   const [type, setType] = useState<string | null>(
     new URLSearchParams(location.search).get("type")
   );
@@ -222,9 +225,10 @@ const DetailPage: React.FC = () => {
           <Card
             elevation={2}
             sx={{
-              backgroundColor: "rgba(255, 255, 255, 0.8)",
-              transition: "transform 0.3s ease-in-out",
-              "&:hover": {transform: "scale(1.05)"},
+              backgroundColor: isDarkMode
+                ? "rgba(0, 0, 0, 0.8)"
+                : "rgba(255, 255, 255, 0.8)",
+              color: isDarkMode ? "#fff" : "#000",
             }}
           >
             <CardContent>
@@ -259,11 +263,15 @@ const DetailPage: React.FC = () => {
                 <IconButton
                   size="small"
                   onClick={() => handleEdit(item)}
-                  sx={{mr: 1}}
+                  sx={{mr: 1, color: isDarkMode ? "#fff" : "inherit"}}
                 >
                   <EditIcon />
                 </IconButton>
-                <IconButton size="small" onClick={handleConfirmDeleteOpen}>
+                <IconButton
+                  size="small"
+                  onClick={handleConfirmDeleteOpen}
+                  sx={{color: isDarkMode ? "#fff" : "inherit"}}
+                >
                   <DeleteIcon />
                 </IconButton>
               </Box>

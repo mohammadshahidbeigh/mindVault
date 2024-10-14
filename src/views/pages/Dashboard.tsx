@@ -16,6 +16,8 @@ import {
   DialogActions,
   Button,
   CircularProgress,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -44,6 +46,8 @@ import xss from "xss"; // Import xss for sanitization
 const Dashboard: React.FC = () => {
   const canvasRef = useStarfield();
   const user = useSelector((state: RootState) => state.user.userInfo);
+  const theme = useTheme();
+  const isMediumOrSmall = useMediaQuery(theme.breakpoints.down("md"));
 
   // Fetch items from GraphQL API
   const {loading, error, data} = useQuery(GET_ITEMS_BY_USER, {
@@ -288,9 +292,10 @@ const Dashboard: React.FC = () => {
     <Container
       maxWidth="lg"
       sx={{
-        marginLeft: "240px",
-        width: "calc(100% - 240px)",
+        marginLeft: isMediumOrSmall ? 0 : "240px",
+        width: isMediumOrSmall ? "100%" : "calc(100% - 240px)",
         position: "relative",
+        padding: isMediumOrSmall ? theme.spacing(2) : theme.spacing(3),
       }}
     >
       <canvas
@@ -300,16 +305,27 @@ const Dashboard: React.FC = () => {
       <Box
         sx={{
           display: "flex",
+          flexDirection: isMediumOrSmall ? "column" : "row",
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: isMediumOrSmall ? "flex-start" : "center",
           mb: 4,
-          mt: 4,
         }}
       >
-        <Typography variant="h4" fontWeight="bold" color="primary">
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          color="primary"
+          sx={{mb: isMediumOrSmall ? 2 : 0}}
+        >
           Dashboard
         </Typography>
-        <Box sx={{display: "flex", alignItems: "center"}}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            width: isMediumOrSmall ? "100%" : "auto",
+          }}
+        >
           <TextField
             placeholder="Search for items..."
             variant="outlined"
@@ -330,6 +346,7 @@ const Dashboard: React.FC = () => {
             }}
             sx={{
               mr: 2,
+              flexGrow: isMediumOrSmall ? 1 : 0,
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
                   borderColor: "primary.main",
@@ -349,6 +366,7 @@ const Dashboard: React.FC = () => {
               aria-label="add new item"
               size="large"
               onClick={() => handleOpenDialog()}
+              sx={{ml: 1, mb: 1}}
             >
               <AddIcon />
             </IconButton>
@@ -356,7 +374,7 @@ const Dashboard: React.FC = () => {
         </Box>
       </Box>
 
-      <Grid container spacing={4}>
+      <Grid container spacing={isMediumOrSmall ? 2 : 4}>
         {categories.map((category, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <CategoryCard category={category} index={index} />
@@ -368,7 +386,7 @@ const Dashboard: React.FC = () => {
         Recent Items
       </Typography>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={isMediumOrSmall ? 2 : 3}>
         {filteredItems.map((item, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <ItemCard
