@@ -343,16 +343,14 @@ const Dashboard: React.FC = () => {
             }}
           />
           <Tooltip title="Add new item" arrow>
-            <Tooltip title="Add new item" arrow>
-              <IconButton
-                color="primary"
-                aria-label="add new item"
-                size="large"
-                onClick={() => handleOpenDialog()}
-              >
-                <AddIcon />
-              </IconButton>
-            </Tooltip>
+            <IconButton
+              color="primary"
+              aria-label="add new item"
+              size="large"
+              onClick={() => handleOpenDialog()}
+            >
+              <AddIcon />
+            </IconButton>
           </Tooltip>
         </Box>
       </Box>

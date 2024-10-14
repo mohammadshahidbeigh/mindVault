@@ -10,6 +10,8 @@ import {
   Avatar,
   InputAdornment,
   IconButton,
+  Grid,
+  Fade,
 } from "@mui/material";
 import {useDispatch} from "react-redux";
 import {useNavigate, Link} from "react-router-dom";
@@ -50,113 +52,147 @@ const Login: React.FC = () => {
   };
 
   return (
-    <Container
-      component="main"
-      maxWidth="xs"
+    <Box
       sx={{
-        width: "60%",
-        maxWidth: "280px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        marginLeft: "240px",
       }}
     >
-      <Paper
-        elevation={6}
+      <Container
+        component="main"
+        maxWidth="xs"
         sx={{
-          mt: 8,
-          p: 4,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          width: "60%",
+          maxWidth: "320px",
         }}
       >
-        <Avatar sx={{m: 1, bgcolor: "secondary.main"}}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5" gutterBottom>
-          Log in
-        </Typography>
-        <Formik
-          initialValues={{email: "", password: ""}}
-          validationSchema={LoginSchema}
-          onSubmit={handleLogin}
-        >
-          {({errors, touched}) => (
-            <Form style={{width: "100%"}}>
-              <Field
-                as={TextField}
-                fullWidth
-                margin="normal"
-                name="email"
-                label="Email Address"
-                variant="outlined"
-                error={touched.email && !!errors.email}
-                helperText={touched.email && errors.email}
-              />
-              <Field
-                as={TextField}
-                fullWidth
-                margin="normal"
-                name="password"
-                label="Password"
-                type={showPassword ? "text" : "password"}
-                variant="outlined"
-                error={touched.password && !!errors.password}
-                helperText={touched.password && errors.password}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleTogglePasswordVisibility}
-                        edge="end"
-                      >
-                        {showPassword ? (
-                          <VisibilityOffIcon />
-                        ) : (
-                          <VisibilityIcon />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <Button
-                variant="contained"
-                color="primary"
-                type="submit"
-                fullWidth
-                sx={{mt: 3, mb: 2}}
-              >
-                Login
-              </Button>
-              <Box sx={{mt: 2, textAlign: "center"}}>
-                <Link
-                  to="/forgot-password"
-                  style={{
-                    textDecoration: "none",
-                    color: "primary.main",
-                    pointerEvents: "none",
-                    opacity: 0.5,
-                  }}
-                >
-                  Forgot password?
-                </Link>
-              </Box>
-              <Box sx={{mt: 2, textAlign: "center"}}>
-                <Typography variant="body2">
-                  Don't have an account?{" "}
-                  <Link
-                    to="/signup"
-                    style={{textDecoration: "none", color: "primary.main"}}
+        <Fade in={true} timeout={1000}>
+          <Paper
+            elevation={6}
+            sx={{
+              p: 4,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              borderRadius: "16px",
+              background: "rgba(255, 255, 255, 0.9)",
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <Avatar
+              sx={{m: 1, bgcolor: "secondary.main", width: 56, height: 56}}
+            >
+              <LockOutlinedIcon fontSize="large" />
+            </Avatar>
+            <Typography
+              component="h1"
+              variant="h4"
+              gutterBottom
+              fontWeight="bold"
+              color="primary"
+            >
+              Log in
+            </Typography>
+            <Formik
+              initialValues={{email: "", password: ""}}
+              validationSchema={LoginSchema}
+              onSubmit={handleLogin}
+            >
+              {({errors, touched}) => (
+                <Form style={{width: "100%"}}>
+                  <Field
+                    as={TextField}
+                    fullWidth
+                    margin="normal"
+                    name="email"
+                    label="Email Address"
+                    variant="outlined"
+                    error={touched.email && !!errors.email}
+                    helperText={touched.email && errors.email}
+                  />
+                  <Field
+                    as={TextField}
+                    fullWidth
+                    margin="normal"
+                    name="password"
+                    label="Password"
+                    type={showPassword ? "text" : "password"}
+                    variant="outlined"
+                    error={touched.password && !!errors.password}
+                    helperText={touched.password && errors.password}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={handleTogglePasswordVisibility}
+                            edge="end"
+                          >
+                            {showPassword ? (
+                              <VisibilityOffIcon />
+                            ) : (
+                              <VisibilityIcon />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    fullWidth
+                    size="large"
+                    sx={{mt: 3, mb: 2, borderRadius: "25px", py: 1.5}}
                   >
-                    Sign Up
-                  </Link>
-                </Typography>
-              </Box>
-            </Form>
-          )}
-        </Formik>
-      </Paper>
-    </Container>
+                    Login
+                  </Button>
+                  <Grid
+                    container
+                    justifyContent="space-between"
+                    alignItems="center"
+                    spacing={2}
+                  >
+                    <Grid item xs={12} sm={6}>
+                      <Link
+                        to="/forgot-password"
+                        style={{
+                          textDecoration: "none",
+                          color: "primary.main",
+                          pointerEvents: "none",
+                          opacity: 0.5,
+                        }}
+                      >
+                        Forgot password?
+                      </Link>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="body2" align="right">
+                        Don't have an account?{" "}
+                        <Link
+                          to="/signup"
+                          style={{
+                            textDecoration: "none",
+                            color: "primary.main",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Sign Up
+                        </Link>
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Form>
+              )}
+            </Formik>
+          </Paper>
+        </Fade>
+      </Container>
+    </Box>
   );
 };
 
