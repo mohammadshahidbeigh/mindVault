@@ -11,7 +11,6 @@ import {
   IconButton,
   Grid,
   Fade,
-  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import {useDispatch} from "react-redux";
@@ -44,9 +43,6 @@ const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-  const isMediumScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -107,23 +103,16 @@ const Signup: React.FC = () => {
           : theme.palette.background.paper,
       }}
     >
-      <Container
-        component="main"
-        maxWidth="xs"
-        sx={{
-          width: {xs: "90%", sm: "80%", md: "60%", lg: "50%"},
-          maxWidth: {xs: "100%", sm: "320px", lg: "480px"},
-        }}
-      >
+      <Container component="main" maxWidth="xs">
         <Fade in={true} timeout={1000}>
           <Paper
             elevation={6}
             sx={{
-              p: {xs: 2, sm: 3, md: 4, lg: 5},
+              p: {xs: 2, sm: 3},
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              borderRadius: "16px",
+              borderRadius: "12px",
               background: isDarkMode
                 ? theme.palette.background.paper
                 : theme.palette.background.default,
@@ -135,19 +124,15 @@ const Signup: React.FC = () => {
               sx={{
                 m: 1,
                 bgcolor: "secondary.main",
-                width: {xs: 48, sm: 56, lg: 64},
-                height: {xs: 48, sm: 56, lg: 64},
+                width: 40,
+                height: 40,
               }}
             >
-              <LockOutlinedIcon
-                fontSize={
-                  isSmallScreen ? "medium" : isLargeScreen ? "large" : "inherit"
-                }
-              />
+              <LockOutlinedIcon fontSize="small" />
             </Avatar>
             <Typography
               component="h1"
-              variant={isSmallScreen ? "h5" : isLargeScreen ? "h3" : "h4"}
+              variant="h5"
               gutterBottom
               fontWeight="bold"
               color="primary"
@@ -175,6 +160,7 @@ const Signup: React.FC = () => {
                     variant="outlined"
                     error={touched.name && !!errors.name}
                     helperText={touched.name && errors.name}
+                    size="small"
                   />
                   <Field
                     as={TextField}
@@ -185,6 +171,7 @@ const Signup: React.FC = () => {
                     variant="outlined"
                     error={touched.email && !!errors.email}
                     helperText={touched.email && errors.email}
+                    size="small"
                   />
                   <Field
                     as={TextField}
@@ -196,6 +183,7 @@ const Signup: React.FC = () => {
                     variant="outlined"
                     error={touched.password && !!errors.password}
                     helperText={touched.password && errors.password}
+                    size="small"
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
@@ -203,11 +191,12 @@ const Signup: React.FC = () => {
                             aria-label="toggle password visibility"
                             onClick={handleTogglePasswordVisibility}
                             edge="end"
+                            size="small"
                           >
                             {showPassword ? (
-                              <VisibilityOffIcon />
+                              <VisibilityOffIcon fontSize="small" />
                             ) : (
-                              <VisibilityIcon />
+                              <VisibilityIcon fontSize="small" />
                             )}
                           </IconButton>
                         </InputAdornment>
@@ -226,6 +215,7 @@ const Signup: React.FC = () => {
                     helperText={
                       touched.confirmPassword && errors.confirmPassword
                     }
+                    size="small"
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
@@ -233,11 +223,12 @@ const Signup: React.FC = () => {
                             aria-label="toggle confirm password visibility"
                             onClick={handleToggleConfirmPasswordVisibility}
                             edge="end"
+                            size="small"
                           >
                             {showConfirmPassword ? (
-                              <VisibilityOffIcon />
+                              <VisibilityOffIcon fontSize="small" />
                             ) : (
-                              <VisibilityIcon />
+                              <VisibilityIcon fontSize="small" />
                             )}
                           </IconButton>
                         </InputAdornment>
@@ -249,36 +240,19 @@ const Signup: React.FC = () => {
                     color="primary"
                     type="submit"
                     fullWidth
-                    size={isSmallScreen ? "medium" : "large"}
+                    size="medium"
                     sx={{
-                      mt: 3,
+                      mt: 2,
                       mb: 2,
-                      borderRadius: "25px",
-                      py: {xs: 1, sm: 1.5, lg: 2},
-                      fontSize: {lg: "1.2rem"},
+                      borderRadius: "20px",
+                      py: 1,
                     }}
                   >
                     Sign Up
                   </Button>
-                  <Grid
-                    container
-                    justifyContent="space-between"
-                    alignItems="center"
-                    spacing={2}
-                    direction={isMediumScreen ? "column" : "row"}
-                  >
-                    <Grid item xs={12} sm={6}>
-                      <Typography
-                        variant="body2"
-                        align={isMediumScreen ? "center" : "left"}
-                        sx={{
-                          fontSize: isSmallScreen
-                            ? "0.875rem"
-                            : isLargeScreen
-                            ? "1rem"
-                            : "1rem",
-                        }}
-                      >
+                  <Grid container justifyContent="center">
+                    <Grid item>
+                      <Typography variant="body2" align="center">
                         Already have an account?{" "}
                         <Link
                           to="/login"
