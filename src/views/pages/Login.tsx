@@ -23,6 +23,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {loginUser} from "../../store/userSlice";
 import {AppDispatch} from "../../store";
+import xss from "xss"; // Import xss for sanitization
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Required"),
@@ -36,7 +37,11 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = (values: {email: string; password: string}) => {
-    dispatch(loginUser(values))
+    const sanitizedValues = {
+      email: xss(values.email), // Sanitize email
+      password: values.password, // Passwords should not be sanitized
+    };
+    dispatch(loginUser(sanitizedValues))
       .unwrap()
       .then(() => {
         enqueueSnackbar("Login successful", {variant: "success"});

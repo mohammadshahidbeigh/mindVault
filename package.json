@@ -31,6 +31,7 @@
     "redux-persist": "^6.0.0",
     "symbol-observable": "^4.0.0",
     "three": "^0.168.0",
+    "xss": "^1.0.15",
     "yup": "^1.4.0"
   },
   "devDependencies": {

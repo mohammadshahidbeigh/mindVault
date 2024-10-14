@@ -32,6 +32,7 @@ import {docco} from "react-syntax-highlighter/dist/esm/styles/hljs";
 import {useSelector} from "react-redux";
 import {RootState} from "../../store";
 import ReactPlayer from "react-player";
+import xss from "xss"; // Import xss for sanitization
 
 const DetailPage: React.FC = () => {
   const {id} = useParams<{id: string}>();
@@ -145,10 +146,10 @@ const DetailPage: React.FC = () => {
           variables: {
             itemId: newItem.id,
             userId: user?.id,
-            title: newItem.title,
-            description: newItem.description,
+            title: xss(newItem.title), // Sanitize title
+            description: xss(newItem.description), // Sanitize description
             type: newItem.type,
-            tags: newItem.tags,
+            tags: newItem.tags.map((tag) => xss(tag)), // Sanitize tags
           },
         });
         setSnackbarMessage("Item updated successfully!");
@@ -180,23 +181,25 @@ const DetailPage: React.FC = () => {
   };
 
   const renderDescription = (description: string) => {
-    if (isCode(description)) {
+    const sanitizedDescription = xss(description); // Sanitize description
+    if (isCode(sanitizedDescription)) {
       return (
         <SyntaxHighlighter language="javascript" style={docco}>
-          {description}
+          {sanitizedDescription}
         </SyntaxHighlighter>
       );
     }
     return (
       <Typography variant="body1" gutterBottom>
-        {description}
+        {sanitizedDescription}
       </Typography>
     );
   };
 
   const renderMedia = (description: string) => {
+    const sanitizedDescription = xss(description); // Sanitize description
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const urls = description.match(urlRegex);
+    const urls = sanitizedDescription.match(urlRegex);
     if (urls) {
       return urls.map((url, index) => (
         <Box key={index} sx={{mt: 2}}>
@@ -226,10 +229,10 @@ const DetailPage: React.FC = () => {
           >
             <CardContent>
               <Typography variant="h4" gutterBottom color="primary">
-                {item.title}
+                {xss(item.title)} {/* Sanitize title */}
               </Typography>
               <Typography variant="subtitle1" gutterBottom>
-                {item.author}
+                {xss(item.author)} {/* Sanitize author */}
               </Typography>
               {renderDescription(item.description)}
               {renderMedia(item.description)}
@@ -237,7 +240,7 @@ const DetailPage: React.FC = () => {
                 {item.tags.map((tag: string, index: number) => (
                   <Chip
                     key={index}
-                    label={tag}
+                    label={xss(tag)} // Sanitize tag
                     color="primary"
                     sx={{mr: 1, mb: 1}}
                   />

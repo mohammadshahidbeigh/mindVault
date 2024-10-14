@@ -1,4 +1,3 @@
-// src/pages/Signup.tsx
 import React, {useState} from "react";
 import {
   Container,
@@ -23,6 +22,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {registerUser} from "../../store/userSlice";
 import {AppDispatch} from "../../store";
+import xss from "xss";
 
 const SignupSchema = Yup.object().shape({
   name: Yup.string().required("Required"),
@@ -47,7 +47,13 @@ const Signup: React.FC = () => {
     email: string;
     password: string;
   }) => {
-    dispatch(registerUser(values))
+    const sanitizedValues = {
+      name: xss(values.name),
+      email: xss(values.email),
+      password: values.password, // Passwords should not be sanitized
+    };
+
+    dispatch(registerUser(sanitizedValues))
       .unwrap()
       .then(() => {
         enqueueSnackbar("Signup successful", {variant: "success"});

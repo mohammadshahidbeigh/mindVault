@@ -39,6 +39,7 @@ import {
 } from "../../graphql/queries";
 import {useSelector} from "react-redux";
 import {RootState} from "../../store";
+import xss from "xss"; // Import xss for sanitization
 
 const Dashboard: React.FC = () => {
   const canvasRef = useStarfield();
@@ -108,10 +109,10 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const lowercasedSearchTerm = searchTerm.toLowerCase();
     const filtered = items.filter((item) => {
-      const lowercasedTitle = item.title.toLowerCase();
-      const lowercasedDescription = item.description.toLowerCase();
-      const lowercasedType = item.type.toLowerCase();
-      const lowercasedTags = item.tags.map((tag) => tag.toLowerCase());
+      const lowercasedTitle = xss(item.title.toLowerCase());
+      const lowercasedDescription = xss(item.description.toLowerCase());
+      const lowercasedType = xss(item.type.toLowerCase());
+      const lowercasedTags = item.tags.map((tag) => xss(tag.toLowerCase()));
 
       return (
         lowercasedTitle.includes(lowercasedSearchTerm) ||
@@ -168,8 +169,8 @@ const Dashboard: React.FC = () => {
             variables: {
               itemId: editingItem.id,
               userId: user.id,
-              title: newItem.title,
-              description: newItem.description,
+              title: xss(newItem.title), // Sanitize title
+              description: xss(newItem.description), // Sanitize description
               type: newItem.type,
               tags: newItem.tags,
             },
@@ -194,8 +195,8 @@ const Dashboard: React.FC = () => {
         try {
           const response = await addItem({
             variables: {
-              title: newItem.title,
-              description: newItem.description,
+              title: xss(newItem.title), // Sanitize title
+              description: xss(newItem.description), // Sanitize description
               type: newItem.type,
               tags: newItem.tags,
               userId: user.id,

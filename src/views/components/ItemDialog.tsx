@@ -14,6 +14,7 @@ import {
   Grid,
 } from "@mui/material";
 import {Item} from "../../utils/validateInputs"; // Removed unused 'validateInputs'
+import xss from "xss"; // Import xss for sanitization
 
 interface Props {
   open: boolean;
@@ -52,7 +53,7 @@ const ItemDialog: React.FC<Props> = ({
               label="Title"
               type="text"
               fullWidth
-              value={newItem.title}
+              value={xss(newItem.title)} // Sanitize title
               onChange={(e) => setNewItem({...newItem, title: e.target.value})}
               error={!!errors.title}
               helperText={errors.title}
@@ -66,7 +67,7 @@ const ItemDialog: React.FC<Props> = ({
               fullWidth
               multiline
               rows={14} // Further increased the number of rows to make the description box even bigger
-              value={newItem.description}
+              value={xss(newItem.description)} // Sanitize description
               onChange={(e) =>
                 setNewItem({...newItem, description: e.target.value})
               }

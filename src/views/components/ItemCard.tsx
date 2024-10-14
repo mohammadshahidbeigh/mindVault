@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import {Edit as EditIcon, Delete as DeleteIcon} from "@mui/icons-material";
 import {useNavigate} from "react-router-dom";
+import xss from "xss"; // Import xss for sanitization
 
 interface Item {
   id: string;
@@ -34,10 +35,11 @@ const ItemCard: React.FC<Props> = ({item, index, onEdit, onDelete}) => {
   };
 
   const truncateDescription = (description: string, maxLength: number) => {
-    if (description.length > maxLength) {
-      return description.substring(0, maxLength) + "...";
+    const sanitizedDescription = xss(description); // Sanitize description
+    if (sanitizedDescription.length > maxLength) {
+      return sanitizedDescription.substring(0, maxLength) + "...";
     }
-    return description;
+    return sanitizedDescription;
   };
 
   return (
@@ -53,7 +55,7 @@ const ItemCard: React.FC<Props> = ({item, index, onEdit, onDelete}) => {
       >
         <CardContent>
           <Typography variant="h6" gutterBottom color="primary">
-            {item.title}
+            {xss(item.title)} {/* Sanitize title */}
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {truncateDescription(item.description, 100)}
@@ -71,7 +73,7 @@ const ItemCard: React.FC<Props> = ({item, index, onEdit, onDelete}) => {
                   borderRadius: "4px",
                 }}
               >
-                {tag}
+                {xss(tag)} {/* Sanitize tag */}
               </Typography>
             ))}
           </Box>

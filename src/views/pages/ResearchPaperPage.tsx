@@ -12,6 +12,7 @@ import {useQuery} from "@apollo/client";
 import {GET_ITEMS_BY_USER} from "../../graphql/queries";
 import {useSelector} from "react-redux";
 import {RootState} from "../../store";
+import xss from "xss"; // Import xss for sanitization
 
 const ResearchPaperPage: React.FC = () => {
   const navigate = useNavigate();
@@ -51,10 +52,11 @@ const ResearchPaperPage: React.FC = () => {
   };
 
   const truncateDescription = (description: string, maxLength: number) => {
-    if (description.length > maxLength) {
-      return description.substring(0, maxLength) + "...";
+    const sanitizedDescription = xss(description); // Sanitize description
+    if (sanitizedDescription.length > maxLength) {
+      return sanitizedDescription.substring(0, maxLength) + "...";
     }
-    return description;
+    return sanitizedDescription;
   };
 
   if (loading) {
@@ -99,14 +101,14 @@ const ResearchPaperPage: React.FC = () => {
                   onClick={() => handlePaperClick(paper.id)}
                 >
                   <Typography variant="h6" gutterBottom color="primary">
-                    {paper.title}
+                    {xss(paper.title)} {/* Sanitize title */}
                   </Typography>
                   <Typography
                     variant="subtitle2"
                     color="text.secondary"
                     gutterBottom
                   >
-                    {paper.author}
+                    {xss(paper.author)} {/* Sanitize author */}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {truncateDescription(paper.description, 100)}
@@ -124,7 +126,7 @@ const ResearchPaperPage: React.FC = () => {
                           borderRadius: "4px",
                         }}
                       >
-                        {tag}
+                        {xss(tag)} {/* Sanitize tag */}
                       </Typography>
                     ))}
                   </Box>
