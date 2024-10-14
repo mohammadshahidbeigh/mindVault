@@ -1,6 +1,6 @@
 // src/components/CategoryCard.tsx
 import React from "react";
-import {Paper, Typography, Box, Fade} from "@mui/material";
+import {Paper, Typography, Box, Fade, useTheme} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 
 interface Category {
@@ -17,6 +17,8 @@ interface Props {
 
 const CategoryCard: React.FC<Props> = ({category, index}) => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
 
   const handleCategoryClick = () => {
     navigate(category.path);
@@ -32,7 +34,9 @@ const CategoryCard: React.FC<Props> = ({category, index}) => {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          backgroundColor: isDarkMode
+            ? "rgba(255, 255, 255, 0.1)"
+            : "rgba(255, 255, 255, 0.8)",
           transition: "transform 0.3s ease-in-out",
           "&:hover": {
             transform: "scale(1.05)",

@@ -6,6 +6,7 @@ import {
   Box,
   Fade,
   CircularProgress,
+  useTheme,
 } from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import {useQuery} from "@apollo/client";
@@ -30,6 +31,9 @@ const ArticlePage: React.FC = () => {
       tags: string[];
     }[]
   >([]);
+
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
 
   useEffect(() => {
     if (data) {
@@ -90,7 +94,9 @@ const ArticlePage: React.FC = () => {
               <Grid item xs={12} sm={6} md={4}>
                 <Box
                   sx={{
-                    backgroundColor: "rgba(255, 255, 255, 0.8)",
+                    backgroundColor: isDarkMode
+                      ? "rgba(255, 255, 255, 0.1)"
+                      : "rgba(255, 255, 255, 0.8)",
                     transition: "transform 0.3s ease-in-out",
                     "&:hover": {transform: "scale(1.05)"},
                     cursor: "pointer",
@@ -120,7 +126,9 @@ const ArticlePage: React.FC = () => {
                         variant="caption"
                         sx={{
                           mr: 1,
-                          backgroundColor: "primary.main",
+                          backgroundColor: isDarkMode
+                            ? "primary.dark"
+                            : "primary.main",
                           color: "white",
                           padding: "2px 6px",
                           borderRadius: "4px",

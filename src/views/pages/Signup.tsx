@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {
   Container,
   TextField,
@@ -45,6 +45,23 @@ const Signup: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMediumScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const darkModeMediaQuery = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    );
+    setIsDarkMode(darkModeMediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setIsDarkMode(e.matches);
+    };
+
+    darkModeMediaQuery.addListener(handleChange);
+    return () => darkModeMediaQuery.removeListener(handleChange);
+  }, []);
 
   const handleSignup = (values: {
     name: string;
@@ -85,42 +102,52 @@ const Signup: React.FC = () => {
         minHeight: "100vh",
         marginLeft: {xs: 0, sm: "240px"},
         width: {xs: "100%", sm: "calc(100% - 240px)"},
+        backgroundColor: isDarkMode
+          ? theme.palette.background.default
+          : theme.palette.background.paper,
       }}
     >
       <Container
         component="main"
         maxWidth="xs"
         sx={{
-          width: {xs: "90%", sm: "80%", md: "60%"},
-          maxWidth: {xs: "100%", sm: "320px"},
+          width: {xs: "90%", sm: "80%", md: "60%", lg: "50%"},
+          maxWidth: {xs: "100%", sm: "320px", lg: "480px"},
         }}
       >
         <Fade in={true} timeout={1000}>
           <Paper
             elevation={6}
             sx={{
-              p: {xs: 2, sm: 3, md: 4},
+              p: {xs: 2, sm: 3, md: 4, lg: 5},
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               borderRadius: "16px",
-              background: "rgba(255, 255, 255, 0.9)",
+              background: isDarkMode
+                ? theme.palette.background.paper
+                : theme.palette.background.default,
               backdropFilter: "blur(10px)",
+              boxShadow: theme.shadows[6],
             }}
           >
             <Avatar
               sx={{
                 m: 1,
                 bgcolor: "secondary.main",
-                width: {xs: 48, sm: 56},
-                height: {xs: 48, sm: 56},
+                width: {xs: 48, sm: 56, lg: 64},
+                height: {xs: 48, sm: 56, lg: 64},
               }}
             >
-              <LockOutlinedIcon fontSize={isSmallScreen ? "medium" : "large"} />
+              <LockOutlinedIcon
+                fontSize={
+                  isSmallScreen ? "medium" : isLargeScreen ? "large" : "inherit"
+                }
+              />
             </Avatar>
             <Typography
               component="h1"
-              variant={isSmallScreen ? "h5" : "h4"}
+              variant={isSmallScreen ? "h5" : isLargeScreen ? "h3" : "h4"}
               gutterBottom
               fontWeight="bold"
               color="primary"
@@ -227,28 +254,37 @@ const Signup: React.FC = () => {
                       mt: 3,
                       mb: 2,
                       borderRadius: "25px",
-                      py: {xs: 1, sm: 1.5},
+                      py: {xs: 1, sm: 1.5, lg: 2},
+                      fontSize: {lg: "1.2rem"},
                     }}
                   >
                     Sign Up
                   </Button>
                   <Grid
                     container
-                    justifyContent="flex-end"
+                    justifyContent="space-between"
                     alignItems="center"
-                    spacing={1}
+                    spacing={2}
+                    direction={isMediumScreen ? "column" : "row"}
                   >
-                    <Grid item>
+                    <Grid item xs={12} sm={6}>
                       <Typography
                         variant="body2"
-                        sx={{fontSize: isSmallScreen ? "0.875rem" : "1rem"}}
+                        align={isMediumScreen ? "center" : "left"}
+                        sx={{
+                          fontSize: isSmallScreen
+                            ? "0.875rem"
+                            : isLargeScreen
+                            ? "1rem"
+                            : "1rem",
+                        }}
                       >
                         Already have an account?{" "}
                         <Link
                           to="/login"
                           style={{
                             textDecoration: "none",
-                            color: "primary.main",
+                            color: theme.palette.primary.main,
                             fontWeight: "bold",
                           }}
                         >
