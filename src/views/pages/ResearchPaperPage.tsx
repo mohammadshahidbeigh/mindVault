@@ -48,7 +48,7 @@ const ResearchPaperPage: React.FC = () => {
   }, [data]);
 
   const handlePaperClick = (id: string) => {
-    navigate(`/detail/${id}?type=research-paper`);
+    navigate(`/detail/${id}?type=Research-Papers`);
   };
 
   const truncateDescription = (description: string, maxLength: number) => {

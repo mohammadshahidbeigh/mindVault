@@ -48,7 +48,7 @@ const BookPage: React.FC = () => {
   }, [data]);
 
   const handleBookClick = (id: string) => {
-    navigate(`/detail/${id}?type=book`);
+    navigate(`/detail/${id}?type=Books`);
   };
 
   const truncateDescription = (description: string, maxLength: number) => {

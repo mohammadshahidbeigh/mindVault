@@ -59,7 +59,7 @@ const Navbar: React.FC = () => {
     >
       <Box sx={{p: 2, flexShrink: 0, display: "flex", alignItems: "center"}}>
         <img
-          src="https://www.cdnlogo.com/logos/m/35/midem.svg"
+          src="https://static.cdnlogo.com/logos/s/71/supergiant.svg"
           alt="MindVault Logo"
           style={{
             width: "40px",

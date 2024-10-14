@@ -3,6 +3,7 @@ import React from "react";
 import {Container, Typography, Button, Box, Paper, Grid} from "@mui/material";
 import {Link} from "react-router-dom";
 import {LibraryBooks, School, Article} from "@mui/icons-material";
+import {motion} from "framer-motion"; // Import motion from framer-motion
 
 const Home: React.FC = () => {
   const features = [
@@ -36,12 +37,24 @@ const Home: React.FC = () => {
       }}
     >
       <Box sx={{mt: 4, mb: 6, textAlign: "center"}}>
-        <Typography variant="h2" gutterBottom fontWeight="bold" color="primary">
-          Welcome to MindVault
-        </Typography>
-        <Typography variant="h5" paragraph color="text.secondary">
-          Your personal knowledge base for articles, research papers, and more.
-        </Typography>
+        <motion.div
+          initial={{opacity: 0, y: 20}}
+          animate={{opacity: 1, y: 0}}
+          transition={{duration: 1, delay: 0.5}}
+        >
+          <Typography
+            variant="h2"
+            gutterBottom
+            fontWeight="bold"
+            color="primary"
+          >
+            Welcome to MindVault
+          </Typography>
+          <Typography variant="h5" paragraph color="text.secondary">
+            Your personal knowledge base for articles, research papers, and
+            more.
+          </Typography>
+        </motion.div>
         <Button
           variant="contained"
           color="primary"

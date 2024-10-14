@@ -48,7 +48,7 @@ const ArticlePage: React.FC = () => {
   }, [data]);
 
   const handleArticleClick = (id: string) => {
-    navigate(`/detail/${id}?type=article`);
+    navigate(`/detail/${id}?type=Articles`);
   };
 
   const truncateDescription = (description: string, maxLength: number) => {
