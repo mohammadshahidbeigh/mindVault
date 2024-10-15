@@ -78,7 +78,9 @@ export const registerUser = createAsyncThunk(
       return registerData;
     } catch (error: unknown) {
       if (error instanceof Error) {
-        return rejectWithValue(`Registration failed: ${error.message}`);
+        return rejectWithValue(
+          `Registration failed: ${error.message}. Please check your internet connection or try again later.`
+        );
       }
       if (typeof error === "object" && error !== null && "response" in error) {
         const axiosError = error as {
@@ -131,7 +133,9 @@ export const loginUser = createAsyncThunk(
       return loginData;
     } catch (error: unknown) {
       if (error instanceof Error) {
-        return rejectWithValue(`Login failed: ${error.message}`);
+        return rejectWithValue(
+          `Login failed: ${error.message}. Please check your internet connection or try again later.`
+        );
       }
       if (typeof error === "object" && error !== null && "response" in error) {
         const axiosError = error as {

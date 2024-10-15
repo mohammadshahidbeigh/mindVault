@@ -286,7 +286,29 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  if (error) return <p>Error: {error.message}</p>;
+  if (error) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          flexDirection: "column",
+          paddingLeft: theme.spacing(12),
+        }}
+      >
+        <Typography variant="subtitle1" color="error" gutterBottom>
+          Error: Unable to load dashboard. This could be due to your Internet
+          connection or the server being down.
+        </Typography>
+        <Typography variant="body2">
+          {error.message ||
+            "An unknown error occurred. Please try again later."}
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Container
