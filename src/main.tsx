@@ -45,6 +45,7 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
+// eslint-disable-next-line react-refresh/only-export-components
 const Main = () => {
   const [darkMode, setDarkMode] = useState(false);
   const theme = useTheme();
