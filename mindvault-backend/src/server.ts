@@ -10,11 +10,15 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import depthLimit from "graphql-depth-limit";
+import cors from "cors";
 
 // Load environment variables
 dotenv.config();
 
 const app: Application = express();
+
+// Enable CORS
+app.use(cors());
 
 // Use morgan for logging requests
 app.use(morgan("combined")); // You can change the format as needed
@@ -30,6 +34,11 @@ const apiLimiter = rateLimit({
 });
 
 app.use("/graphql", apiLimiter);
+
+// Add a root route handler
+app.get("/", (req, res) => {
+  res.send("Welcome to the MindVault API");
+});
 
 // Connect to MongoDB
 connectDB();
