@@ -13,6 +13,8 @@ services:
       - MONGODB_URI=${MONGODB_URI}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - PORT=4000
+    env_file:
+      - ./mindvault-backend/.env
     depends_on:
       - mongo
     networks:
