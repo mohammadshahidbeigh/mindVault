@@ -16,7 +16,7 @@ RUN npm install
 COPY . .
 
 # Step 6: Set NODE_OPTIONS to increase memory limit
-ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NODE_OPTIONS="--max-old-space-size=8192"
 
 # Step 7: Build the app for production
 RUN npm run build
