@@ -14,7 +14,6 @@ RUN npm install
 
 # Step 5: Copy the rest of the application code
 COPY src ./src
-COPY .env ./
 
 # Step 7: Build the TypeScript code
 RUN npm run build
