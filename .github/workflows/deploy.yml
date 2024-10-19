@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -21,12 +21,12 @@ jobs:
 
       - name: Build and push frontend Docker image
         run: |
-          docker build -t mohammadshahidbeigh/mindvault-frontend:latest -f ./frontend/Dockerfile .
+          docker build -t mohammadshahidbeigh/mindvault-frontend:latest .
           docker push mohammadshahidbeigh/mindvault-frontend:latest
 
       - name: Build and push backend Docker image
         run: |
-          docker build -t mohammadshahidbeigh/mindvault-frontend:latest -f frontend/Dockerfile ./frontend
+          docker build -t mohammadshahidbeigh/mindvault-backend:latest -f mindvault-backend/Dockerfile ./mindvault-backend
           docker push mohammadshahidbeigh/mindvault-backend:latest
 
       - name: SSH and deploy to EC2
