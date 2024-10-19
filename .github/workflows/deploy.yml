@@ -21,7 +21,7 @@ jobs:
 
       - name: Build and push frontend Docker image
         run: |
-          docker buildx build -t mohammadshahidbeigh/mindvault-frontend:latest -f ./Dockerfile .  # Added the build context "."
+          docker buildx build --push -t ***/mindvault-frontend:latest -f ./Dockerfile .  # Added the build context "."
           docker push mohammadshahidbeigh/mindvault-frontend:latest
 
       - name: Build and push backend Docker image
