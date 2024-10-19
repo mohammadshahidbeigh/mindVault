@@ -26,6 +26,8 @@ jobs:
 
       - name: Build and push backend Docker image
         run: |
+          # Create a dummy .env file if it doesn't exist
+          touch mindvault-backend/.env
           docker build -t mohammadshahidbeigh/mindvault-backend:latest -f mindvault-backend/Dockerfile ./mindvault-backend
           docker push mohammadshahidbeigh/mindvault-backend:latest
 
@@ -40,6 +42,7 @@ jobs:
             docker pull mohammadshahidbeigh/mindvault-backend:latest
             docker-compose down
             docker-compose up -d
+
 
 
 
