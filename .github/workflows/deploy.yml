@@ -21,12 +21,12 @@ jobs:
 
       - name: Build and push frontend Docker image
         run: |
-          docker buildx build --push -t /mindvault-frontend:latest -f ./Dockerfile .  # Added the build context "."
+          docker build -t mohammadshahidbeigh/mindvault-frontend:latest -f ./frontend/Dockerfile .
           docker push mohammadshahidbeigh/mindvault-frontend:latest
 
       - name: Build and push backend Docker image
         run: |
-          docker buildx build -t mohammadshahidbeigh/mindvault-backend:latest -f ./mindvault-backend/Dockerfile .  # Added the build context "."
+          docker build -t mohammadshahidbeigh/mindvault-frontend:latest -f frontend/Dockerfile ./frontend
           docker push mohammadshahidbeigh/mindvault-backend:latest
 
       - name: SSH and deploy to EC2
@@ -40,5 +40,6 @@ jobs:
             docker pull mohammadshahidbeigh/mindvault-backend:latest
             docker-compose down
             docker-compose up -d
+
 
 
