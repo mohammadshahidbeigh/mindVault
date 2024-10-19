@@ -18,12 +18,12 @@ jobs:
 
       - name: Build and push backend Docker image
         run: |
-          docker build -t backend-app ./backend
+          docker build -t mohammadshahidbeigh/mindvault-backend:latest -f ./backend/Dockerfile 
           docker save backend-app | ssh -i "your-key.pem" ubuntu@your-ec2-public-ip "docker load && docker run -d -p 4000:4000 backend-app"
 
       - name: Build and push frontend Docker image
         run: |
-          docker build -t frontend-app ./frontend
+          docker build -t mohammadshahidbeigh/mindvault-frontend:latest -f ./frontend/Dockerfile .
           docker save frontend-app | ssh -i "your-key.pem" ubuntu@your-ec2-public-ip "docker load && docker run -d -p 3000:3000 frontend-app"
 
 
