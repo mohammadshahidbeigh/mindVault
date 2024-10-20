@@ -68,7 +68,7 @@ const Home: React.FC = () => {
             fontWeight="bold"
             color="primary"
           >
-            Welcome to MindVault
+            Welcome to MindVaultt
           </Typography>
           <Typography
             variant={isSmallScreen ? "body1" : "h5"}
