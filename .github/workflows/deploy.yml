@@ -30,7 +30,7 @@ jobs:
           docker build -t mohammadshahidbeigh/mindvault-backend:latest ./mindvault-backend
       - name: Build frontend Docker image
         run: |
-          docker build -t mohammadshahidbeigh/mindvault-frontend:latest ./mindvault-frontend
+         docker build -t mohammadshahidbeigh/mindvault-frontend:latest ./src
 
       # Step 5: Push the Docker images to Docker Hub
       - name: Push backend image to Docker Hub
