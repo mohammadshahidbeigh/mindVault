@@ -68,15 +68,15 @@ const Home: React.FC = () => {
             fontWeight="bold"
             color="primary"
           >
-            Welcome to MindVaultt
+            Welcome to MindVault
           </Typography>
           <Typography
             variant={isSmallScreen ? "body1" : "h5"}
             paragraph
             color="text.secondary"
           >
-            Your personal knowledge base for articles, research papers, and
-            more.
+            Your personal knowledge base for articles, research papers, books
+            and more.
           </Typography>
         </motion.div>
         <Button
