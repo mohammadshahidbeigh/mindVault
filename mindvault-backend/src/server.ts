@@ -17,8 +17,13 @@ dotenv.config();
 
 const app: Application = express();
 
-// Enable CORS
-app.use(cors());
+// Enable CORS with specific origin
+app.use(
+  cors({
+    origin: "http://43.205.10.7:3000",
+    credentials: true,
+  })
+);
 
 // Use morgan for logging requests
 app.use(morgan("combined")); // You can change the format as needed
@@ -116,7 +121,7 @@ async function startApolloServer() {
   const port = process.env.PORT || 4000;
   app.listen({port}, () => {
     console.log(
-      `🚀 Server ready at http://localhost:${port}${server.graphqlPath}`
+      `🚀 Server ready at http://43.205.10.7:${port}${server.graphqlPath}`
     );
   });
 }
