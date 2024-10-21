@@ -40,7 +40,7 @@ const authLink = new ApolloLink((operation, forward) => {
 const client = new ApolloClient({
   link: ApolloLink.from([
     authLink,
-    new HttpLink({uri: "http://43.205.10.7:4000/graphql"}), // Replace with your GraphQL API URL
+    new HttpLink({uri: "http://43.205.10.7:4000"}), // Replace with your GraphQL API URL
   ]),
   cache: new InMemoryCache(),
 });
