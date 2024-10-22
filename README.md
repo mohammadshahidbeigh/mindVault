@@ -1,4 +1,4 @@
-# MindVault
+# MindVault - Personal Knowledge Management System
 
 ## Overview
 
