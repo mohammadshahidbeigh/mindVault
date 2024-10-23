@@ -2,17 +2,33 @@
 
 ## Overview
 
-MindVault is a web application designed to help researchers and academics organize, manage, and collaborate on research papers and other academic resources. It provides a user-friendly interface for uploading, categorizing, and searching research papers, as well as tools for collaboration and analysis.
+MindVault is a comprehensive web application built for researchers, academics, and professionals to organize, manage, and collaborate on research papers, articles, books, and personal notes. Designed to streamline the research workflow, it offers powerful tools to upload, categorize, search, and share academic content, making it an essential resource for anyone involved in research or writing.
 
 ## Features
 
-- User authentication and authorization
-- Upload and manage research papers and personal notes
-- Categorize content with tags and metadata
-- Advanced search functionality
-- Collaboration tools for sharing and commenting on content
-- Data visualization for research trends and metrics
-- Responsive design for desktop and mobile use
+- User Authentication and Authorization:
+MindVault ensures secure access with user authentication powered by JWT (JSON Web Tokens). Only authorized users can upload, manage, and collaborate on content, protecting sensitive academic data.
+
+- Upload, Manage, and Update Content:
+Users can upload, update, and delete research papers, articles, books, or notes. This feature allows easy management of academic resources, ensuring that users can keep their content up-to-date and organized effortlessly.
+
+- Categorization with Tags and Metadata:
+Users can categorize their content using tags and metadata, enabling better organization and quicker access to relevant materials. This makes managing large repositories of research papers and academic notes much easier.
+
+- Advanced Search Functionality:
+MindVault features an efficient search system powered by GraphQL, allowing users to quickly locate papers, notes, or other materials based on tags, titles, or keywords. The advanced search ensures accurate and fast retrieval of relevant content.
+
+- Collaboration Tools:
+Share research with colleagues, add comments, and collaborate on academic resources. These tools help improve teamwork and communication within research projects.
+
+- Data Visualization:
+MindVault includes data visualization tools that provide insights into research trends, citation metrics, and other academic data. This helps users track the progress of their research and discover trends in their field.
+
+- Responsive Design:
+With a fully responsive design, the platform provides a seamless user experience on both desktop and mobile devices, allowing researchers to access and manage their resources anytime, anywhere.
+
+- Video Integration:
+MindVault also allows users to watch educational videos directly on the platform using React-Player. This feature adds a multimedia element to the research experience, enabling users to consume video content alongside reading materials.
 
 ## Technology Stack
 
