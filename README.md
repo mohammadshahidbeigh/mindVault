@@ -18,9 +18,6 @@ Users can categorize their content using tags and metadata, enabling better orga
 - Advanced Search Functionality:
 MindVault features an efficient search system powered by GraphQL, allowing users to quickly locate papers, notes, or other materials based on tags, titles, or keywords. The advanced search ensures accurate and fast retrieval of relevant content.
 
-- Collaboration Tools:
-Share research with colleagues, add comments, and collaborate on academic resources. These tools help improve teamwork and communication within research projects.
-
 - Data Visualization:
 MindVault includes data visualization tools that provide insights into research trends, citation metrics, and other academic data. This helps users track the progress of their research and discover trends in their field.
 
