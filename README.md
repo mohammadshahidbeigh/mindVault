@@ -1,7 +1,5 @@
 # MindVault - Personal Knowledge Management System
 
-## Overview
-
 MindVault is a comprehensive web application built for researchers, academics, and professionals to organize, manage, and collaborate on research papers, articles, books, and personal notes. Designed to streamline the research workflow, it offers powerful tools to upload, categorize, search, and share academic content, making it an essential resource for anyone involved in research or writing.
 
 ## Features
