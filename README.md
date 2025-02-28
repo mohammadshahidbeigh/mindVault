@@ -36,7 +36,7 @@ MindVault also allows users to watch educational videos directly on the platform
 - GraphQL for efficient data querying
 - XSS protection for enhanced security
 - Containerization: Docker
-- Deployment: AWS EC2
+- Deployment: AWS EC2 > Upgraded to Vercel
   - GraphQL Endpoint: [http://43.205.10.7:4000/graphql](http://43.205.10.7:4000/graphql)
   - Application Endpoint: [http://43.205.10.7:3000/](http://43.205.10.7:3000/)
 - CI/CD: GitHub Actions
