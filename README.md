@@ -50,7 +50,7 @@ MindVault also allows users to watch educational videos directly on the platform
 
 ## Contributing
 
-We welcome contributions to improve MindVault. Please read our contributing guidelines before submitting pull requests.
+We welcome contributions to improve MindVault. Please read our contributing guidelines before you submit pull requests.
 
 ## License
 
